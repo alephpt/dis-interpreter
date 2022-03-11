@@ -163,8 +163,8 @@ class Scanner {
       isDecimal = true;
       advance();
 
+      // come back and improve edge cases
       while (isDigit(peek())) { advance(); }
-
     }
 
     if (isDecimal) { 
