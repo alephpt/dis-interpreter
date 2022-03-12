@@ -24,6 +24,7 @@ class Scanner {
     literals.put("else",    ELSE);
     literals.put("for",     FOR);
     literals.put("while",   WHILE);
+    literals.put("none",    NONE);
     literals.put("obj",     CLASS);
     literals.put("log",     PRINT);
     literals.put("def",     DEFINE);
