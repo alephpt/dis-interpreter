@@ -39,7 +39,7 @@ class PrintAST implements Express.Visitor<String> {
     return builder.toString();
   }
 
-  public static void main(String[] args) {
+/*  public static void main(String[] args) {
     Express expression = new Express.Binary(
       new Express.Unary(new Token(TokenType.MINUS, "-", null, 1), new Express.Literal(98321)),
       new Token(TokenType.STAR, "*", null, 1),
@@ -47,4 +47,5 @@ class PrintAST implements Express.Visitor<String> {
 
     System.out.println(new PrintAST().print(expression));
   }
+*/
 }

@@ -103,8 +103,8 @@ class Scanner {
       case '=': addToken(match('=') ? EQEQ :
                          match('+') ? EQ_PLUS :
                          match('-') ? EQ_MINUS :
-                         match('>') ? EQ_GREAT :
-                         match('<') ? EQ_LESS :
+                         match('>') ? R_OUT :
+                         match('<') ? L_OUT :
                                       EQ); 
                 break;
 
