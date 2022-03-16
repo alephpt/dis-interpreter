@@ -1,14 +1,26 @@
 package dev.alephpt.Dis;
 
-class Interpreter implements Express.Visitor<Object> {
-  void interpret(Express expression) {
+import java.util.List;
+
+class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
+  void interpret(List<Statement> statements) {
+    try {
+      for (Statement statement : statements) {
+        execute(statement);
+      }
+    } catch (RuntimeError error) {
+      DisC.runtimeError(error);
+    }
+  }
+
+/*  void interpret(Express expression) {
     try {
       Object value = evaluate(expression);
       System.out.println(asString(value));
     } catch (RuntimeError error) {
       DisC.runtimeError(error);
     }
-  }
+  }*/
 
   @Override
   public Object visitLiteralExpress(Express.Literal express) {
@@ -29,13 +41,14 @@ class Interpreter implements Express.Visitor<Object> {
         return !isTruthful(right);
       case MINUS:
         checkNumberOperand(express.operator, right);
-        return -(Double)right;
+        if(right instanceof Double) { return -((Number)right).doubleValue(); }
+        if(right instanceof Integer) { return -(Integer)right; }
     }
 
     // unreachable
     return null;
   }
-
+  
   @Override
   public Object visitBinaryExpress(Express.Binary express) {
     Object left = evaluate(express.left);
@@ -48,39 +61,74 @@ class Interpreter implements Express.Visitor<Object> {
         return isEqual(left, right);
       case GREATER:
         checkNumberOperands(express.operator, left, right);
-        return (Double)left > (Double)right;
+        if(left instanceof Integer && right instanceof Integer) {
+          return (Integer)left > (Integer)right; 
+        }        
+        return ((Number)left).doubleValue() > ((Number)right).doubleValue(); 
       case GREAT_EQ:
         checkNumberOperands(express.operator, left, right);
-        return (Double)left >= (Double)right;
+        if(left instanceof Integer && right instanceof Integer) {
+          return (Integer)left >= (Integer)right; 
+        }
+        return ((Number)left).doubleValue() >= ((Number)right).doubleValue(); 
       case LESSER:
         checkNumberOperands(express.operator, left, right);
-        return (Double)left < (Double)right;
+        if(left instanceof Integer && right instanceof Integer) {
+          return (Integer)left < (Integer)right; 
+        }        
+        return ((Number)left).doubleValue() < ((Number)right).doubleValue(); 
       case LESS_EQ:
         checkNumberOperands(express.operator, left, right);
-        return (Double)left <= (Double)right;
+        if(left instanceof Integer && right instanceof Integer) {
+          return (Integer)left <= (Integer)right; 
+        } 
+        return ((Number)left).doubleValue() <= ((Number)right).doubleValue(); 
       case MINUS:
         checkNumberOperands(express.operator, left, right);
-        return (Double)left - (Double)right;
+        if(left instanceof Integer && right instanceof Integer) {
+          return (Integer)left - (Integer)right; 
+        } 
+        return ((Number)left).doubleValue() - ((Number)right).doubleValue(); 
       case PLUS:
         if (left instanceof Integer && right instanceof Integer) {
               return (Integer)left + (Integer)right;
         }
-        if (left instanceof Double && right instanceof Double) {
-              return (Double)left + (Double)right;
+        if (left instanceof Double || right instanceof Double ||
+            left instanceof Integer || right instanceof Integer) {
+              return ((Number)left).doubleValue() + ((Number)right).doubleValue();
         }
         if (left instanceof String && right instanceof String) {
           return (String)left + (String)right;
         }
-        throw new RuntimeError(express.operator, "Operands must be Numbers or Strings");
+        throw new RuntimeError(express.operator, "Operands must be of Numbers or Strings and be matching types.");
       case WHACK:
         checkNumberOperands(express.operator, left, right);
-        return  (Double)left / (Double)right;
+        if(left instanceof Integer && right instanceof Integer) {
+          return (Integer)left / (Integer)right; 
+        }
+        return ((Number)left).doubleValue() / ((Number)right).doubleValue(); 
       case STAR:
         checkNumberOperands(express.operator, left, right);
-        return (Double)left * (Double)right;
+        if(left instanceof Integer && right instanceof Integer) {
+          return (Integer)left * (Integer)right; 
+        }
+        return ((Number)left).doubleValue() * ((Number)right).doubleValue(); 
     }
     
     // unreachable
+    return null;
+  }
+
+  @Override
+  public Void visitExpressionStatement(Statement.Expression statement) {
+    evaluate(statement.expression);
+    return null;
+  }
+
+  @Override
+  public Void visitPrintStatement(Statement.Print statement) {
+    Object value = evaluate(statement.expression);
+    System.out.println(asString(value));
     return null;
   }
 
@@ -114,16 +162,20 @@ class Interpreter implements Express.Visitor<Object> {
     return express.accept(this);
   }
 
+  private void execute(Statement statement) {
+    statement.accept(this);
+  }
+
   private void checkNumberOperand(Token operator, Object operand) {
     if (operand instanceof Double || operand instanceof Integer) {
       return;
     }
-    throw new RuntimeError(operator, "Operand must be a number");
+    throw new RuntimeError(operator, "Operand must be a number.");
   }
 
   private void checkNumberOperands(Token operator, Object left, Object right) {
-    if ((left instanceof Integer && right instanceof Integer) || 
-        (left instanceof Double && right instanceof Double)) { 
+    if ((left instanceof Integer || left instanceof Double) && 
+        (right instanceof Integer || right instanceof Double)) { 
       return; 
     }
     throw new RuntimeError(operator, "Operands must be numbers.");

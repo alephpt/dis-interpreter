@@ -1,5 +1,6 @@
 package dev.alephpt.Dis;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static dev.alephpt.Dis.TokenType.*;
@@ -9,20 +10,46 @@ class Parser {
   private final List<Token> tokens;
   private int current = 0;
 
-  Parser(List<Token> tokens) {
+  Parser(List<Token> tokens) { 
     this.tokens = tokens;
   }
 
-  Express parse() {
+  List<Statement> parse() {
+    List<Statement> statements = new ArrayList<>();
+    while (!isAtEnd()) { statements.add(statement()); }
+
+    return statements;
+  }
+
+/*  Express parse() {
     try {
       return expression();
     } catch (ParserError error) {
       return null;
     }
   }
+  */
 
-  private Express expression() {
-    return equality();
+  private Express expression() { return equality(); }
+
+  private Statement statement() {
+    if (match(PRINT)) { return printStatement(); }
+
+    return expressionStatement();
+  }
+
+  private Statement printStatement() {
+    Express value = expression();
+    consume(LINE_END, "Expected endline value '.' after statement.");
+
+    return new Statement.Print(value);
+  }
+
+  private Statement expressionStatement() {
+    Express express = expression();
+    consume(LINE_END, "Expected endline value '.' after expression.");
+
+    return new Statement.Expression(express);
   }
 
   private Express equality() {

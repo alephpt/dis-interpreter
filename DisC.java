@@ -48,7 +48,8 @@ public class DisC {
     Scanner scanner = new Scanner(source);
     List<Token> tokens = scanner.scanTokens();
     Parser parser = new Parser(tokens);
-    Express expression = parser.parse();
+//    Express expression = parser.parse();
+    List<Statement> statements = parser.parse();
 
 //    for (Token token : tokens) {
 //      System.out.println(token);
@@ -57,7 +58,7 @@ public class DisC {
     if(hadError) return;
 
     // System.out.println(new PrintAST().print(expression));
-    interpreter.interpret(expression);
+    interpreter.interpret(statements);
   }
 
   static void error(int line, String message) {

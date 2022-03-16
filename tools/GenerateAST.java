@@ -13,11 +13,9 @@ public class GenerateAST {
     }
     String outputDir = args[0];
     
-    defineAST(outputDir, "Express", Arrays.asList(
-          "Binary   : Express left, Token operator, Express right",
-          "Grouping : Express expression",
-          "Literal  : Object value",
-          "Unary    : Token operator, Express right"
+    defineAST(outputDir, "Statement", Arrays.asList(
+          "Expression   : Express expression",
+          "Print : Express expression"
           )
     );
   }

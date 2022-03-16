@@ -65,12 +65,13 @@ class Scanner {
                                       LESSER);
                 break;
       case '>': addToken(match('=') ? GREAT_EQ : 
-                         match('<') ? INEQ:
+                         match('<') ? INEQ :
                                       GREATER); 
                 break;
-      case '!': addToken(NOT); break;
+      case '!': addToken(match('=') ? INEQ : NOT); 
+                break;
       case ',': addToken(COMMA); break;
-      case '.': addToken(DOT); break;
+      case '.': addToken(LINE_END); break;
       case '-': addToken(match('>') ? R_ASSIGN :
                          match('-') ? MINUSMINUS :
                          match('=') ? MINUS_EQ :
@@ -80,8 +81,8 @@ class Scanner {
                          match('=') ? PLUS_EQ :
                                       PLUS); 
                 break;
-      case ':': addToken(COLON); break;
-      case ';': addToken(LINE_END); break;
+      case ':': addToken(NESTING); break;
+      case ';': addToken(SEMIC); break;
       case '/': if (match('*')) {
                   blockComment();
                 } else

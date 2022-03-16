@@ -3,7 +3,7 @@ package dev.alephpt.Dis;
 enum TokenType {
   // One Char Tokens
   L_PAR, R_PAR, L_BRACK, R_BRACK, L_BRACE, R_BRACE, 
-  COMMA, DOT, COLON, LINE_END, WHACK, BWHACK, 
+  COMMA, LINE_END, NESTING, SEMIC, WHACK, BWHACK, 
   QUEST, DOLLAR, HASH, NOT, BODY_END,
 
   // One or Two Char Tokens
