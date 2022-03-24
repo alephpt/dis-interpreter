@@ -36,7 +36,7 @@ public class DisC {
     BufferedReader reader = new BufferedReader(input);
 
     for (;;) {
-      System.out.print("> ");
+      System.out.print("DisC # ");
       String line = reader.readLine();
       if (line == null) break;
       run(line);

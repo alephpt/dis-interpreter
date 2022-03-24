@@ -12,12 +12,28 @@ public class GenerateAST {
       System.exit(64);
     }
     String outputDir = args[0];
-    
+   
+     
     defineAST(outputDir, "Statement", Arrays.asList(
+          "Print        : Express expression",
           "Expression   : Express expression",
-          "Print : Express expression"
+          "Body         : List<Statement> statements",
+          "Variable     : Token name, Express initial"
           )
     );
+    
+
+/*
+    defineAST(outputDir, "Express", Arrays.asList(
+          "Assign      : Token name, Express value",
+          "Unary       : Token operator, Express right",
+          "Binary      : Express left, Token operator, Express right",
+          "Grouping    : Express expression",
+          "Literal     : Object value",
+          "Variable    : Token name"
+          )
+    );
+    */
   }
 
   private static void defineAST(String outputDir, String baseName, List<String> types) throws IOException {
@@ -30,6 +46,8 @@ public class GenerateAST {
     writer.println();
     writer.println("abstract class " + baseName + " {");
 
+    writer.println();
+    
     defineVisitor(writer, baseName, types);
 
     // the AST Classes
@@ -41,6 +59,8 @@ public class GenerateAST {
 
     // base accept() method
     writer.println();
+    writer.println();
+
     writer.println("  abstract <R> R accept(Visitor<R> visitor);");
 
     writer.println("}");
@@ -49,6 +69,8 @@ public class GenerateAST {
 
   private static void defineType(PrintWriter writer, String baseName, String className, String fieldList) {
     writer.println();
+    writer.println();
+    writer.println("  // " + className + " " + baseName + " Definition //");
     // declaration
     writer.println("  static class " + className + " extends " + baseName + " {");
 

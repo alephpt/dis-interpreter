@@ -3,13 +3,52 @@ package dev.alephpt.Dis;
 import java.util.List;
 
 abstract class Express {
+
   interface Visitor<R> {
+    R visitAssignExpress(Assign express);
+    R visitUnaryExpress(Unary express);
     R visitBinaryExpress(Binary express);
     R visitGroupingExpress(Grouping express);
     R visitLiteralExpress(Literal express);
-    R visitUnaryExpress(Unary express);
+    R visitVariableExpress(Variable express);
   }
 
+
+  // Assign Express Definition //
+  static class Assign extends Express {
+    Assign(Token name, Express value) {
+      this.name = name;
+      this.value = value;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitAssignExpress(this);
+    }
+
+    final Token name;
+    final Express value;
+  }
+
+
+  // Unary Express Definition //
+  static class Unary extends Express {
+    Unary(Token operator, Express right) {
+      this.operator = operator;
+      this.right = right;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitUnaryExpress(this);
+    }
+
+    final Token operator;
+    final Express right;
+  }
+
+
+  // Binary Express Definition //
   static class Binary extends Express {
     Binary(Express left, Token operator, Express right) {
       this.left = left;
@@ -27,6 +66,8 @@ abstract class Express {
     final Express right;
   }
 
+
+  // Grouping Express Definition //
   static class Grouping extends Express {
     Grouping(Express expression) {
       this.expression = expression;
@@ -40,6 +81,8 @@ abstract class Express {
     final Express expression;
   }
 
+
+  // Literal Express Definition //
   static class Literal extends Express {
     Literal(Object value) {
       this.value = value;
@@ -53,20 +96,21 @@ abstract class Express {
     final Object value;
   }
 
-  static class Unary extends Express {
-    Unary(Token operator, Express right) {
-      this.operator = operator;
-      this.right = right;
+
+  // Variable Express Definition //
+  static class Variable extends Express {
+    Variable(Token name) {
+      this.name = name;
     }
 
     @Override
     <R> R accept(Visitor<R> visitor) {
-      return visitor.visitUnaryExpress(this);
+      return visitor.visitVariableExpress(this);
     }
 
-    final Token operator;
-    final Express right;
+    final Token name;
   }
+
 
   abstract <R> R accept(Visitor<R> visitor);
 }

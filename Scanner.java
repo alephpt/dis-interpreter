@@ -28,7 +28,6 @@ class Scanner {
     literals.put("obj",     CLASS);
     literals.put("log",     PRINT);
     literals.put("def",     DEFINE);
-    literals.put("dec",     DECLARE);
     literals.put("include", INCLUDE);
     literals.put("true",    TRUE);
     literals.put("false",   FALSE);
@@ -147,7 +146,7 @@ class Scanner {
   }
 
   private void identifier() {
-    while (isAlphaNumeric(peek())) advance();
+    while (isAlphaNumeric(peek())) { advance(); }
     
     String text = source.substring(start, current);
     TokenType type = literals.get(text);

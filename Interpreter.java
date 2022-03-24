@@ -3,6 +3,8 @@ package dev.alephpt.Dis;
 import java.util.List;
 
 class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
+  private Field fields = new Field();
+
   void interpret(List<Statement> statements) {
     try {
       for (Statement statement : statements) {
@@ -120,6 +122,18 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   }
 
   @Override
+  public Object visitVariableExpress(Express.Variable express) {
+    return fields.get(express.name);
+  }
+
+  @Override
+  public Object visitAssignExpress(Express.Assign express) {
+    Object value = evaluate(express.value);
+    fields.assign(express.name, value);
+    return value;
+  }
+
+  @Override
   public Void visitExpressionStatement(Statement.Expression statement) {
     evaluate(statement.expression);
     return null;
@@ -129,6 +143,21 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   public Void visitPrintStatement(Statement.Print statement) {
     Object value = evaluate(statement.expression);
     System.out.println(asString(value));
+    return null;
+  }
+
+  @Override
+  public Void visitBodyStatement(Statement.Body statement) {
+    executeBlock(statement.statements, new Field(fields));
+    return null;
+  }
+
+  @Override
+  public Void visitVariableStatement(Statement.Variable statement) {
+    Object value = null;
+    if (statement.initial != null ) { value = evaluate(statement.initial); }
+
+    fields.define(statement.name.lexeme, value);
     return null;
   }
 
@@ -164,6 +193,15 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
 
   private void execute(Statement statement) {
     statement.accept(this);
+  }
+
+  void executeBlock(List<Statement> statements, Field field) {
+    Field previous = this.fields;
+
+    try {
+      this.fields = field;
+      for (Statement statement : statements) { execute(statement); }
+    } finally { this.fields = previous; } 
   }
 
   private void checkNumberOperand(Token operator, Object operand) {

@@ -16,7 +16,7 @@ class Parser {
 
   List<Statement> parse() {
     List<Statement> statements = new ArrayList<>();
-    while (!isAtEnd()) { statements.add(statement()); }
+    while (!isAtEnd()) { statements.add(definition()); }
 
     return statements;
   }
@@ -30,19 +30,41 @@ class Parser {
   }
   */
 
-  private Express expression() { return equality(); }
+  private Express expression() { return assignment(); }
+
+  private Statement definition() {
+    try {
+      if (match(DEFINE)) { return varDefinition(); }
+      return statement();
+    } catch (ParserError error) {
+      synchronize();
+      return null;
+    }
+  }
 
   private Statement statement() {
     if (match(PRINT)) { return printStatement(); }
+    if (match(BODY_START)) { return new Statement.Body(block()); }
 
     return expressionStatement();
   }
 
   private Statement printStatement() {
+    consume(R_ASSIGN, "Directional '->' Token expected after LOG declaration.");
     Express value = expression();
     consume(LINE_END, "Expected endline value '.' after statement.");
 
     return new Statement.Print(value);
+  }
+
+  private Statement varDefinition() {
+    Token name = consume(IDENTIFIER, "Variable name expected.");
+
+    Express initial = null;
+    if (match(L_ASSIGN)) { initial = expression(); }
+
+    consume(LINE_END, "Expected endline value '.' after declaration.");
+    return new Statement.Variable(name, initial);
   }
 
   private Statement expressionStatement() {
@@ -50,6 +72,34 @@ class Parser {
     consume(LINE_END, "Expected endline value '.' after expression.");
 
     return new Statement.Expression(express);
+  }
+
+  private List<Statement> block() {
+    List<Statement> statements = new ArrayList<>();
+
+    while (!check(BODY_END) && !isAtEnd()) {
+      statements.add(definition());
+    }
+
+    consume(BODY_END, "Expecting '~' after body.");
+    return statements;
+  }
+
+  private Express assignment() {
+    Express expr = equality();
+
+    if (match(L_ASSIGN)) {
+      Token equals = previous();
+      Express value = assignment();
+
+      if (expr instanceof Express.Variable) {
+        Token name = ((Express.Variable)expr).name;
+        return new Express.Assign(name, value);
+      }
+
+    error(equals, "Invalid assignment target.");
+    }
+    return expr;
   }
 
   private Express equality() {
@@ -110,6 +160,7 @@ class Parser {
     if (match(TRUE)) { return new Express.Literal(true); }
     if (match(NONE)) { return new Express.Literal(null); }
     if (match(NUMERAL, STRING)) { return new Express.Literal(previous().literal); }
+    if (match(IDENTIFIER)) { return new Express.Variable(previous()); }
     if (match(L_PAR)) {
       Express expr = expression();
       consume(R_PAR, "Expecting ')' after expression");
@@ -160,7 +211,6 @@ class Parser {
 
       switch(peek().type) {
         case CLASS: 
-        case DECLARE: 
         case DEFINE: 
         case PRINT: 
         case WHEN: 
