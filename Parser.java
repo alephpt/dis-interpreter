@@ -43,10 +43,25 @@ class Parser {
   }
 
   private Statement statement() {
+    if (match(WHEN)) { return whenStatement(); }
     if (match(PRINT)) { return printStatement(); }
     if (match(BODY_START)) { return new Statement.Body(block()); }
 
     return expressionStatement();
+  }
+
+  private Statement whenStatement() {
+    consume(COMMA, "',' expected after 'when'.");
+    Express condition = expression();
+    consume(COLON, "closing ':' expected after when conditional.");
+
+    Statement thenBranch = statement();
+    Statement elseBranch = null;
+    if (match(ELSE)) {
+      elseBranch = statement();
+    }
+
+    return new Statement.When(condition, thenBranch, elseBranch);
   }
 
   private Statement printStatement() {
@@ -68,7 +83,7 @@ class Parser {
   }
 
   private Statement expressionStatement() {
-    Express express = expression();
+    Express express = expression(); 
     consume(LINE_END, "Expected endline value '.' after expression.");
 
     return new Statement.Expression(express);
@@ -166,6 +181,7 @@ class Parser {
       consume(R_PAR, "Expecting ')' after expression");
       return new Express.Grouping(expr);
     }
+
 
     throw error(peek(), "Found invalid expression. Expected a valid expression.");
   }

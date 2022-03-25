@@ -5,25 +5,11 @@ import java.util.List;
 abstract class Statement {
 
   interface Visitor<R> {
-    R visitPrintStatement(Print statement);
     R visitExpressionStatement(Expression statement);
+    R visitWhenStatement(When statement);
+    R visitPrintStatement(Print statement);
     R visitBodyStatement(Body statement);
     R visitVariableStatement(Variable statement);
-  }
-
-
-  // Print Statement Definition //
-  static class Print extends Statement {
-    Print(Express expression) {
-      this.expression = expression;
-    }
-
-    @Override
-    <R> R accept(Visitor<R> visitor) {
-      return visitor.visitPrintStatement(this);
-    }
-
-    final Express expression;
   }
 
 
@@ -36,6 +22,40 @@ abstract class Statement {
     @Override
     <R> R accept(Visitor<R> visitor) {
       return visitor.visitExpressionStatement(this);
+    }
+
+    final Express expression;
+  }
+
+
+  // When Statement Definition //
+  static class When extends Statement {
+    When(Express condition, Statement thenBranch, Statement elseBranch) {
+      this.condition = condition;
+      this.thenBranch = thenBranch;
+      this.elseBranch = elseBranch;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitWhenStatement(this);
+    }
+
+    final Express condition;
+    final Statement thenBranch;
+    final Statement elseBranch;
+  }
+
+
+  // Print Statement Definition //
+  static class Print extends Statement {
+    Print(Express expression) {
+      this.expression = expression;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitPrintStatement(this);
     }
 
     final Express expression;

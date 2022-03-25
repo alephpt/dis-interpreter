@@ -19,7 +19,6 @@ class Scanner {
     literals = new HashMap<>();
     literals.put("and",     AND);
     literals.put("when",    WHEN);
-    literals.put("then",    THEN);
     literals.put("or",      OR);
     literals.put("else",    ELSE);
     literals.put("for",     FOR);
@@ -80,7 +79,7 @@ class Scanner {
                          match('=') ? PLUS_EQ :
                                       PLUS); 
                 break;
-      case ':': addToken(NESTING); break;
+      case ':': addToken(COLON); break;
       case ';': addToken(SEMIC); break;
       case '/': if (match('*')) {
                   blockComment();

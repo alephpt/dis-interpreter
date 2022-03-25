@@ -15,8 +15,9 @@ public class GenerateAST {
    
      
     defineAST(outputDir, "Statement", Arrays.asList(
-          "Print        : Express expression",
           "Expression   : Express expression",
+          "When         : Express condition, Statement thenBranch, Statement elseBranch",
+          "Print        : Express expression",
           "Body         : List<Statement> statements",
           "Variable     : Token name, Express initial"
           )

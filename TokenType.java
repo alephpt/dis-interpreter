@@ -3,7 +3,7 @@ package dev.alephpt.Dis;
 enum TokenType {
   // One Char Tokens
   L_PAR, R_PAR, L_BRACK, R_BRACK, L_BRACE, R_BRACE, 
-  COMMA, LINE_END, NESTING, SEMIC, WHACK, BWHACK, 
+  COMMA, LINE_END, COLON, SEMIC, WHACK, BWHACK, 
   QUEST, DOLLAR, HASH, NOT, BODY_END,
 
   // One or Two Char Tokens
@@ -18,7 +18,7 @@ enum TokenType {
   IDENTIFIER, STRING, NUMERAL,
 
   // Keywords
-  AND, WHEN, THEN, OR, ELSE, FOR, WHILE,
+  AND, WHEN, OR, ELSE, FOR, WHILE,
   TRUE, FALSE, THIS, SUPER, NONE,
   CLASS, PRINT, RETURN, INCLUDE, DEFINE, 
 
