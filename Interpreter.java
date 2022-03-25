@@ -141,10 +141,28 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
 
   @Override
   public Void visitWhenStatement(Statement.When statement) {
+    boolean met = false;
     if (isTruthful(evaluate(statement.condition))) {
+      met = true;
       execute(statement.thenBranch);
-    } else if (statement.elseBranch != null) {
+    } else {
+      for (Statement.Or orStatement : statement.orBranches) {
+        if (isTruthful(evaluate(orStatement.condition)) && !met) {
+          met = true;
+          execute(orStatement.orBranch);
+        }
+      }
+    }
+    if (statement.elseBranch != null && !met) {
       execute(statement.elseBranch);
+    }
+    return null;
+  }
+
+  @Override
+  public Void visitOrStatement(Statement.Or statement) {
+    if (isTruthful(evaluate(statement.condition))) {
+      execute(statement.orBranch);
     }
     return null;
   }

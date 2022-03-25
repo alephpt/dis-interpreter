@@ -56,13 +56,32 @@ class Parser {
     consume(COLON, "closing ':' expected after when conditional.");
 
     Statement thenBranch = statement();
+
+    List<Statement.Or> orBranches = new ArrayList<>();
     Statement elseBranch = null;
+    
+    while (match(OR) && !isAtEnd()) {
+      orBranches.add(orStatement());
+    }
+
     if (match(ELSE)) {
+      consume(COLON, "':' expected after 'else'.");
       elseBranch = statement();
     }
 
-    return new Statement.When(condition, thenBranch, elseBranch);
+    return new Statement.When(condition, thenBranch, orBranches, elseBranch);
   }
+
+  private Statement.Or orStatement() {
+    consume(COMMA, "',' expected after 'or'.");
+    Express condition = expression();
+    consume(COLON, "closing ':' expected after or conditional.");
+
+    Statement orBranch = statement();
+
+    return new Statement.Or(condition, orBranch);
+  }
+
 
   private Statement printStatement() {
     consume(R_ASSIGN, "Directional '->' Token expected after LOG declaration.");

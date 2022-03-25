@@ -6,6 +6,7 @@ abstract class Statement {
 
   interface Visitor<R> {
     R visitExpressionStatement(Expression statement);
+    R visitOrStatement(Or statement);
     R visitWhenStatement(When statement);
     R visitPrintStatement(Print statement);
     R visitBodyStatement(Body statement);
@@ -28,11 +29,29 @@ abstract class Statement {
   }
 
 
+  // Or Statement Definition //
+  static class Or extends Statement {
+    Or(Express condition, Statement orBranch) {
+      this.condition = condition;
+      this.orBranch = orBranch;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitOrStatement(this);
+    }
+
+    final Express condition;
+    final Statement orBranch;
+  }
+
+
   // When Statement Definition //
   static class When extends Statement {
-    When(Express condition, Statement thenBranch, Statement elseBranch) {
+    When(Express condition, Statement thenBranch, List<Statement.Or> orBranches, Statement elseBranch) {
       this.condition = condition;
       this.thenBranch = thenBranch;
+      this.orBranches = orBranches;
       this.elseBranch = elseBranch;
     }
 
@@ -43,6 +62,7 @@ abstract class Statement {
 
     final Express condition;
     final Statement thenBranch;
+    final List<Statement.Or> orBranches;
     final Statement elseBranch;
   }
 
