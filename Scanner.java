@@ -17,16 +17,16 @@ class Scanner {
 
   static { 
     literals = new HashMap<>();
-    literals.put("and",     AND);
+    literals.put("log",     LOG);
     literals.put("when",    WHEN);
     literals.put("or",      OR);
     literals.put("else",    ELSE);
-    literals.put("for",     FOR);
+    literals.put("as",      AS);
     literals.put("while",   WHILE);
-    literals.put("none",    NONE);
-    literals.put("obj",     CLASS);
-    literals.put("log",     PRINT);
     literals.put("def",     DEFINE);
+    literals.put("op",      OP);
+    literals.put("set",     SET);
+    literals.put("none",    NONE);
     literals.put("include", INCLUDE);
     literals.put("true",    TRUE);
     literals.put("false",   FALSE);

@@ -16,8 +16,10 @@ public class GenerateAST {
      
     defineAST(outputDir, "Statement", Arrays.asList(
           "Expression   : Express expression",
+          "Operation    : Token name, List<Token> params, List<Statement> body",
           "Or           : Express condition, Statement orBranch",
           "When         : Express condition, Statement thenBranch, List<Statement.Or> orBranches, Statement elseBranch",
+          "While        : Express condition, Statement body",
           "Print        : Express expression",
           "Body         : List<Statement> statements",
           "Variable     : Token name, Express initial"
@@ -30,12 +32,13 @@ public class GenerateAST {
           "Assign      : Token name, Express value",
           "Unary       : Token operator, Express right",
           "Binary      : Express left, Token operator, Express right",
+          "Calling     : Express called, Token par, List<Express> args",
           "Grouping    : Express expression",
           "Literal     : Object value",
           "Variable    : Token name"
           )
     );
-    */
+*/
   }
 
   private static void defineAST(String outputDir, String baseName, List<String> types) throws IOException {

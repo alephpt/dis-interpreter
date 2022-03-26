@@ -6,8 +6,10 @@ abstract class Statement {
 
   interface Visitor<R> {
     R visitExpressionStatement(Expression statement);
+    R visitOperationStatement(Operation statement);
     R visitOrStatement(Or statement);
     R visitWhenStatement(When statement);
+    R visitWhileStatement(While statement);
     R visitPrintStatement(Print statement);
     R visitBodyStatement(Body statement);
     R visitVariableStatement(Variable statement);
@@ -26,6 +28,25 @@ abstract class Statement {
     }
 
     final Express expression;
+  }
+
+
+  // Operation Statement Definition //
+  static class Operation extends Statement {
+    Operation(Token name, List<Token> params, List<Statement> body) {
+      this.name = name;
+      this.params = params;
+      this.body = body;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitOperationStatement(this);
+    }
+
+    final Token name;
+    final List<Token> params;
+    final List<Statement> body;
   }
 
 
@@ -64,6 +85,23 @@ abstract class Statement {
     final Statement thenBranch;
     final List<Statement.Or> orBranches;
     final Statement elseBranch;
+  }
+
+
+  // While Statement Definition //
+  static class While extends Statement {
+    While(Express condition, Statement body) {
+      this.condition = condition;
+      this.body = body;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitWhileStatement(this);
+    }
+
+    final Express condition;
+    final Statement body;
   }
 
 

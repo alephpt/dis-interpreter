@@ -1,9 +1,24 @@
 package dev.alephpt.Dis;
 
+import java.util.ArrayList;
 import java.util.List;
 
 class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
-  private Field fields = new Field();
+  final Field globals = new Field();
+  private Field fields = globals;
+
+  Interpreter() {
+    globals.define("clock", new DisCaller() {
+      @Override
+      public int arity() { return 0; }
+
+      @Override
+      public Object call(Interpreter interpret,
+                         List<Object> args) {
+        return (double)System.currentTimeMillis();
+      }
+    });
+  }
 
   void interpret(List<Statement> statements) {
     try {
@@ -32,6 +47,28 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   @Override
   public Object visitGroupingExpress(Express.Grouping express) {
     return evaluate(express.expression);
+  }
+
+  @Override
+  public Object visitCallingExpress(Express.Calling express) {
+    Object called = evaluate(express.called);
+
+    List<Object> args = new ArrayList<>();
+    for (Express argument : express.args) {
+      args.add(evaluate(argument));
+    }
+
+    if (!(called instanceof DisCaller)) {
+      throw new RuntimeError(express.par, "Only Classes and Functions are Callable.");
+    }
+
+    DisCaller operation = (DisCaller)called;
+  
+    if(args.size() != operation.arity()) {
+      throw new RuntimeError(express.par, "Expected " + operation.arity() + " arguments.");
+    }
+
+    return operation.call(this, args);
   }
 
   @Override
@@ -95,14 +132,14 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
         if (left instanceof Integer && right instanceof Integer) {
               return (Integer)left + (Integer)right;
         }
+        if (left instanceof String || right instanceof String) {
+          return asString(left) + asString(right);
+        }
         if (left instanceof Double || right instanceof Double ||
             left instanceof Integer || right instanceof Integer) {
               return ((Number)left).doubleValue() + ((Number)right).doubleValue();
         }
-        if (left instanceof String && right instanceof String) {
-          return (String)left + (String)right;
-        }
-        throw new RuntimeError(express.operator, "Operands must be of Numbers or Strings and be matching types.");
+        throw new RuntimeError(express.operator, "Operands must be of Numbers or Strings.");
       case WHACK:
         checkNumberOperands(express.operator, left, right);
         if(left instanceof Integer && right instanceof Integer) {
@@ -139,6 +176,14 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
     return null;
   }
 
+  @Override 
+  public Void visitOperationStatement(Statement.Operation statement) {
+    DisOp operation = new DisOp(statement);
+    fields.define(statement.name.lexeme, operation);
+
+    return null;
+  }
+
   @Override
   public Void visitWhenStatement(Statement.When statement) {
     boolean met = false;
@@ -164,6 +209,12 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
     if (isTruthful(evaluate(statement.condition))) {
       execute(statement.orBranch);
     }
+    return null;
+  }
+
+  @Override
+  public Void visitWhileStatement(Statement.While statement) {
+    while (isTruthful(evaluate(statement.condition))) { execute(statement.body); }
     return null;
   }
 

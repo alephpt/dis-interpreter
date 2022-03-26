@@ -8,6 +8,7 @@ abstract class Express {
     R visitAssignExpress(Assign express);
     R visitUnaryExpress(Unary express);
     R visitBinaryExpress(Binary express);
+    R visitCallingExpress(Calling express);
     R visitGroupingExpress(Grouping express);
     R visitLiteralExpress(Literal express);
     R visitVariableExpress(Variable express);
@@ -64,6 +65,25 @@ abstract class Express {
     final Express left;
     final Token operator;
     final Express right;
+  }
+
+
+  // Calling Express Definition //
+  static class Calling extends Express {
+    Calling(Express called, Token par, List<Express> args) {
+      this.called = called;
+      this.par = par;
+      this.args = args;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitCallingExpress(this);
+    }
+
+    final Express called;
+    final Token par;
+    final List<Express> args;
   }
 
 
