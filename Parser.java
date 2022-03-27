@@ -77,16 +77,18 @@ class Parser {
     // increment conditions
     Express increment = null;
     consume(L_PAR, "Opening '(' expected for increment body.");
-    if(!check(R_PAR)) { increment = expression(); }
+    if(!check(R_PAR)) { increment = asExpression(); }
     consume(R_PAR, "Closing ')' expected after increment expression.");
     
     // conditional conditions
     Express condition = null;
-    if (!check(COLON)) { condition = expression(); }
+    if (!check(COLON)) { condition = asExpression(); }
     consume(COLON, "':' expected after as clauses.");
 
+    // body of the loop
     Statement body = statement();
 
+    // if the incrementer is not null, we want to increment at the end
     if (increment != null) {
       body = new Statement.Body(
           Arrays.asList(
@@ -95,7 +97,7 @@ class Parser {
     }
 
     if (condition == null) { condition = new Express.Literal(true); }
-    body = new Statement.While(condition, body);
+    body = new Statement.While(new Express.Assign(condition, body);
 
     if (initializer != null) {
       body = new Statement.Body(Arrays.asList(initializer, body));
@@ -165,7 +167,7 @@ class Parser {
   
   private Statement.Operation operation(String kind) {
     Token name = consume(IDENTIFIER, "expected " + kind + " name.");
-    consume(COMMA, "',' expected after " + kind + " declaration.");
+    consume(L_ASSIGN, "',' expected after " + kind + " declaration.");
     List<Token> params = new ArrayList<>();
 
     if(!check(COLON)) {
@@ -196,6 +198,7 @@ class Parser {
     consume(LINE_END, "Expected endline value '.' after declaration.");
     return new Statement.Variable(name, initial);
   }
+
 
 
   ///////////
@@ -242,7 +245,7 @@ class Parser {
         return new Express.Assign(name, value);
       }
 
-    error(equals, "Invalid assignment target.");
+      error(equals, "Invalid assignment target.");
     }
     return expr;
   }
@@ -303,7 +306,7 @@ class Parser {
   private Express finishCalling(Express called) {
     List<Express> args = new ArrayList<>();
     
-    if (!check(COLON)) {
+    if (!check(LINE_END)) {
       do {
         if (args.size() >= 255) { error(peek(), "Maximum of 255 Arguments Exceeded."); }
 
@@ -311,16 +314,16 @@ class Parser {
       } while (match(COMMA));
     }
 
-    Token par = consume(COLON, "Closing ':' expected after function parameters");
+   // Token par = consume(COLON, "Closing ':' expected after function parameters");
 
-    return new Express.Calling(called, par, args);
+    return new Express.Calling(called, args);
   }
 
   private Express calling() {
     Express expr = primary();
 
     while (true) {
-      if(match(COMMA)){
+      if(match(R_ASSIGN)){
         expr = finishCalling(expr);
       } else {
         break;
@@ -387,7 +390,7 @@ class Parser {
 
       switch(peek().type) {
         case OP:
-        case SET:
+        case WORKER:
         case DEFINE: 
         case LOG: 
         case WHEN:

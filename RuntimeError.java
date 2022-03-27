@@ -1,5 +1,7 @@
 package dev.alephpt.Dis;
 
+import java.util.List;
+
 class RuntimeError extends RuntimeException {
   final Token token;
 

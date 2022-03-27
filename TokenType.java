@@ -20,7 +20,7 @@ enum TokenType {
   // Keywords
   WHEN, OR, ELSE, AS, WHILE,
   TRUE, FALSE, THIS, SUPER, NONE,
-  OP, SET, LOG, RETURN, INCLUDE, DEFINE, 
+  OP, WORKER, LOG, RETURN, INCLUDE, DEFINE, 
 
   EOF
 }

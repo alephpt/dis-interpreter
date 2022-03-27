@@ -17,21 +17,23 @@ class Scanner {
 
   static { 
     literals = new HashMap<>();
-    literals.put("log",     LOG);
-    literals.put("when",    WHEN);
-    literals.put("or",      OR);
-    literals.put("else",    ELSE);
-    literals.put("as",      AS);
-    literals.put("while",   WHILE);
-    literals.put("def",     DEFINE);
-    literals.put("op",      OP);
-    literals.put("set",     SET);
-    literals.put("none",    NONE);
-    literals.put("include", INCLUDE);
-    literals.put("true",    TRUE);
-    literals.put("false",   FALSE);
-    literals.put("this",    THIS);
-    literals.put("super",   SUPER);
+    literals.put("log",       LOG);
+    literals.put("when",      WHEN);
+    literals.put("or",        OR);
+    literals.put("else",      ELSE);
+    literals.put("as",        AS);
+    literals.put("while",     WHILE);
+    literals.put("def",       DEFINE);
+    literals.put("define",    DEFINE);
+    literals.put("op",        OP);
+    literals.put("operation", OP);
+    literals.put("worker",    WORKER);
+    literals.put("none",      NONE);
+    literals.put("include",   INCLUDE);
+    literals.put("true",      TRUE);
+    literals.put("false",     FALSE);
+    literals.put("this",      THIS);
+    literals.put("super",     SUPER);
   }
 
   Scanner(String source) {

@@ -27,6 +27,8 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
       }
     } catch (RuntimeError error) {
       DisC.runtimeError(error);
+    } catch (RuntimeArgsError error) {
+      DisC.runtimeArgsError(error);
     }
   }
 
@@ -52,20 +54,19 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   @Override
   public Object visitCallingExpress(Express.Calling express) {
     Object called = evaluate(express.called);
-
     List<Object> args = new ArrayList<>();
     for (Express argument : express.args) {
       args.add(evaluate(argument));
     }
 
     if (!(called instanceof DisCaller)) {
-      throw new RuntimeError(express.par, "Only Classes and Functions are Callable.");
+      throw new RuntimeArgsError(args, "Only Classes and Functions are Callable.");
     }
 
     DisCaller operation = (DisCaller)called;
   
     if(args.size() != operation.arity()) {
-      throw new RuntimeError(express.par, "Expected " + operation.arity() + " arguments.");
+      throw new RuntimeArgsError(args, "Expected " + operation.arity() + " arguments.");
     }
 
     return operation.call(this, args);

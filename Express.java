@@ -70,9 +70,8 @@ abstract class Express {
 
   // Calling Express Definition //
   static class Calling extends Express {
-    Calling(Express called, Token par, List<Express> args) {
+    Calling(Express called, List<Express> args) {
       this.called = called;
-      this.par = par;
       this.args = args;
     }
 
@@ -82,7 +81,6 @@ abstract class Express {
     }
 
     final Express called;
-    final Token par;
     final List<Express> args;
   }
 
