@@ -61,47 +61,88 @@ class Parser {
 
   private Statement asStatement() {
     consume(COMMA, "',' expected after 'as'.");
-    
-    // initializer conditions
-    Statement initializer;
-    if(match(LINE_END)) { 
-      initializer = null; 
-    }
-    else if(match(DEFINE)) { 
-      initializer = varDefinition(); 
-    }
-    else { 
-      initializer = expressionStatement(); 
-    }
-  
-    // increment conditions
+ 
+    boolean nullinit = false;
+    boolean initdef = false;
+    Statement.Expression initializerExpr = null;
+    Statement.Variable initializerVar = null;
+    Token initName = null;
+    Express initVal = null;
     Express increment = null;
+    Express condition = null;
+    Token operator = null;
+    Express right = null;
+    
+
+    // initializer conditions
+    if(match(LINE_END)) { 
+      nullinit = true;
+    }
+    else if(match(DEFINE)) {
+      initName = consume(IDENTIFIER, "Variable name expected in definition.");
+      consume(L_ASSIGN, "Assignment expected for scoped 'as' declaration.");
+      initVal = expression(); 
+      consume(LINE_END, "Expected endline value '.' inside scoped 'as' declaration.");
+      initializerVar = new Statement.Variable(initName, initVal);
+      initdef = true;
+    }
+    else {
+      if(match(IDENTIFIER)) {
+        initName = previous();
+        initVal = new Express.Variable(initName); 
+        initializerExpr = new Statement.Expression(initVal);
+      }
+      consume(LINE_END, "Expected endline value '.' inside scoped 'as' declaration.");
+    }
+    
+      // increment conditions
     consume(L_PAR, "Opening '(' expected for increment body.");
-    if(!check(R_PAR)) { increment = asExpression(); }
+    if(!check(R_PAR) && !nullinit) { 
+      if(match(L_ASSIGN)){
+        increment = assignment();
+      }
+    }
     consume(R_PAR, "Closing ')' expected after increment expression.");
     
     // conditional conditions
-    Express condition = null;
-    if (!check(COLON)) { condition = asExpression(); }
+    if (!check(COLON) && !nullinit) { 
+      if(match(INEQ, EQEQ, GREATER, GREAT_EQ, LESSER, LESS_EQ)) {
+        operator = previous();
+        right = comparison();
+      }
+      if(initdef){
+        condition = new Express.Binary(new Express.Variable(initName), operator, right);
+      } else {
+        condition = new Express.Binary(initVal, operator, right);
+      }
+    }
+
     consume(COLON, "':' expected after as clauses.");
 
     // body of the loop
     Statement body = statement();
 
     // if the incrementer is not null, we want to increment at the end
-    if (increment != null) {
+    if (increment != null && !nullinit) {
       body = new Statement.Body(
           Arrays.asList(
             body,
-            new Statement.Expression(increment)));
+            new Statement.Expression(new Express.Assign(initName, increment))));
     }
 
     if (condition == null) { condition = new Express.Literal(true); }
-    body = new Statement.While(new Express.Assign(condition, body);
+    body = new Statement.While(condition, body);
 
-    if (initializer != null) {
-      body = new Statement.Body(Arrays.asList(initializer, body));
+    if (initializerVar != null || initializerExpr != null) {
+      if(initdef){
+        body = new Statement.Body(Arrays.asList(initializerVar, body));
+      } else {
+        body = new Statement.Body(Arrays.asList(initializerExpr, body));
+      }     
     }
+    else if (!nullinit) {
+      body = new Statement.Body(Arrays.asList(new Statement.Expression(initVal), body));
+    } 
     
     return body;
   }
