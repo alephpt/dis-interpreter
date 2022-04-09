@@ -15,6 +15,30 @@ class Field {
     this.foregone = foregone;
   }
 
+  Object globalGet(Token name) {
+    while (foregone != null) { return foregone.globalGet(name); }
+
+    if (values.containsKey(name.lexeme)) { return values.get(name.lexeme); }
+
+    throw new RuntimeError(name, "Global Variable '" + name.lexeme + "' is undefined.");
+  }
+  
+  void globalAssign(Token name, Object value) {
+    if (foregone != null) { throw new RuntimeError(name, "Invalid Assignment of '" + value + "', not in the Global Scope."); }
+
+    throw new RuntimeError(name, "Global Assignment for '" + value + "' is not implemented. Contact the developer.");
+  }
+
+  Object parentGet(Token name) {
+    if (foregone.values.containsKey(name.lexeme)) { return foregone.values.get(name.lexeme); }
+
+    throw new RuntimeError(name, "Parent Variable '" + name.lexeme + "' is undefined.");
+  }
+
+  void parentAssign(Token name, Object value) {
+    throw new RuntimeError(name, "Global Assignment for '" + value + "' is not implemented. Contact the developer.");
+  }
+
   Object get(Token name) {
     if (values.containsKey(name.lexeme)) { return values.get(name.lexeme); }
 
@@ -42,4 +66,5 @@ class Field {
   void define(String name, Object value) {
     values.put(name, value);
   }
+
 }

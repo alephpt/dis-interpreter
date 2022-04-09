@@ -6,12 +6,15 @@ abstract class Express {
 
   interface Visitor<R> {
     R visitAssignExpress(Assign express);
+    R visitCountExpress(Count express);
     R visitUnaryExpress(Unary express);
     R visitBinaryExpress(Binary express);
     R visitCallingExpress(Calling express);
     R visitGroupingExpress(Grouping express);
     R visitLiteralExpress(Literal express);
     R visitVariableExpress(Variable express);
+    R visitParentVariableExpress(ParentVariable express);
+    R visitGlobalVariableExpress(GlobalVariable express);
   }
 
 
@@ -29,6 +32,25 @@ abstract class Express {
 
     final Token name;
     final Express value;
+  }
+
+
+  // Count Express Definition //
+  static class Count extends Express {
+    Count(Token operator, Express identifier, Token name) {
+      this.operator = operator;
+      this.identifier = identifier;
+      this.name = name;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitCountExpress(this);
+    }
+
+    final Token operator;
+    final Express identifier;
+    final Token name;
   }
 
 
@@ -124,6 +146,36 @@ abstract class Express {
     @Override
     <R> R accept(Visitor<R> visitor) {
       return visitor.visitVariableExpress(this);
+    }
+
+    final Token name;
+  }
+
+
+  // ParentVariable Express Definition //
+  static class ParentVariable extends Express {
+    ParentVariable(Token name) {
+      this.name = name;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitParentVariableExpress(this);
+    }
+
+    final Token name;
+  }
+
+
+  // GlobalVariable Express Definition //
+  static class GlobalVariable extends Express {
+    GlobalVariable(Token name) {
+      this.name = name;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitGlobalVariableExpress(this);
     }
 
     final Token name;

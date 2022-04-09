@@ -33,7 +33,10 @@ class Scanner {
     literals.put("true",      TRUE);
     literals.put("false",     FALSE);
     literals.put("this",      THIS);
+    literals.put("parent",    PARENT);
+    literals.put("global",    GLOBAL);
     literals.put("super",     SUPER);
+    literals.put("return",    RETURN);
   }
 
   Scanner(String source) {

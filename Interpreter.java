@@ -17,6 +17,9 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
                          List<Object> args) {
         return (double)System.currentTimeMillis();
       }
+
+      @Override
+      public String toString() { return "<Native Operation>"; }
     });
   }
 
@@ -88,7 +91,40 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
     // unreachable
     return null;
   }
-  
+ 
+  @Override
+  public Object visitCountExpress(Express.Count express) {
+    Object identity = evaluate(express.identifier);
+    Number value = 0;
+
+    switch(express.operator.type){
+      case PLUSPLUS:
+        if(identity instanceof Integer) {
+          value = (Integer)identity + 1;
+          break;
+        } else 
+        if (identity instanceof Double) {
+          value = (Double)identity + 1.0;
+          break;
+        } else {
+          throw new RuntimeError(express.operator, "must only be used with Numbers.");
+        }
+      case MINUSMINUS:
+        if(identity instanceof Integer) {
+          value = (Integer)identity - 1;
+          break;
+        } else 
+        if (identity instanceof Double) {
+          value = (Double)identity - 1.0;
+          break;       
+        } else {
+          throw new RuntimeError(express.operator, "must only be used with Numbers.");
+        }
+    }
+    fields.assign(express.name, value);
+    return value;
+  }
+
   @Override
   public Object visitBinaryExpress(Express.Binary express) {
     Object left = evaluate(express.left);
@@ -165,6 +201,16 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   }
 
   @Override
+  public Object visitParentVariableExpress(Express.ParentVariable express) {
+    return fields.parentGet(express.name);
+  }
+
+  @Override
+  public Object visitGlobalVariableExpress(Express.GlobalVariable express) {
+    return fields.globalGet(express.name);
+  }
+
+  @Override
   public Object visitAssignExpress(Express.Assign express) {
     Object value = evaluate(express.value);
     fields.assign(express.name, value);
@@ -179,7 +225,7 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
 
   @Override 
   public Void visitOperationStatement(Statement.Operation statement) {
-    DisOp operation = new DisOp(statement);
+    DisOp operation = new DisOp(statement, fields);
     fields.define(statement.name.lexeme, operation);
 
     return null;
@@ -224,6 +270,13 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
     Object value = evaluate(statement.expression);
     System.out.println(asString(value));
     return null;
+  }
+  
+  @Override
+  public Void visitReturnStatement(Statement.Return statement) {
+    Object value = null;
+    if(statement.value != null) { value = evaluate(statement.value); } 
+    throw new Return(value);
   }
 
   @Override

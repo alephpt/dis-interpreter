@@ -15,6 +15,7 @@ enum TokenType {
   PLUS, PLUSPLUS, PLUS_EQ, MINUS, MINUSMINUS, MINUS_EQ,
 
   // Literals
+  PARENT, GLOBAL,
   IDENTIFIER, STRING, NUMERAL,
 
   // Keywords

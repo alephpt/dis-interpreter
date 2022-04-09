@@ -11,6 +11,7 @@ abstract class Statement {
     R visitWhenStatement(When statement);
     R visitWhileStatement(While statement);
     R visitPrintStatement(Print statement);
+    R visitReturnStatement(Return statement);
     R visitBodyStatement(Body statement);
     R visitVariableStatement(Variable statement);
   }
@@ -117,6 +118,23 @@ abstract class Statement {
     }
 
     final Express expression;
+  }
+
+
+  // Return Statement Definition //
+  static class Return extends Statement {
+    Return(Token keyword, Express value) {
+      this.keyword = keyword;
+      this.value = value;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitReturnStatement(this);
+    }
+
+    final Token keyword;
+    final Express value;
   }
 
 

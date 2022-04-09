@@ -48,6 +48,7 @@ class Parser {
     if (match(AS)) { return asStatement(); }
     if (match(WHEN)) { return whenStatement(); }
     if (match(LOG)) { return printStatement(); }
+    if (match(RETURN)) { return returnStatement(); }
     if (match(WHILE)) { return whileStatement(); }
     if (match(BODY_START)) { return new Statement.Body(block()); }
 
@@ -72,6 +73,7 @@ class Parser {
     Express condition = null;
     Token operator = null;
     Express right = null;
+    Token counter = null;
     
 
     // initializer conditions
@@ -98,7 +100,13 @@ class Parser {
       // increment conditions
     consume(L_PAR, "Opening '(' expected for increment body.");
     if(!check(R_PAR) && !nullinit) { 
-      if(match(L_ASSIGN)){
+      if (match(PLUSPLUS)) {
+        counter = previous();
+      }
+      else if (match(MINUSMINUS)) {
+        counter = previous();
+      } 
+      else {
         increment = assignment();
       }
     }
@@ -106,10 +114,15 @@ class Parser {
     
     // conditional conditions
     if (!check(COLON) && !nullinit) { 
-      if(match(INEQ, EQEQ, GREATER, GREAT_EQ, LESSER, LESS_EQ)) {
+      if(match(INEQ, EQEQ)) {
         operator = previous();
         right = comparison();
       }
+      if(match(GREATER, GREAT_EQ, LESSER, LESS_EQ)){
+        operator = previous();
+        right = term();
+      }
+
       if(initdef){
         condition = new Express.Binary(new Express.Variable(initName), operator, right);
       } else {
@@ -122,13 +135,23 @@ class Parser {
     // body of the loop
     Statement body = statement();
 
+    // check for runtime error IF counter/increment THEN IF !nullinit
+
     // if the incrementer is not null, we want to increment at the end
-    if (increment != null && !nullinit) {
-      body = new Statement.Body(
+    if ((increment != null || counter != null) && !nullinit) {
+      if(counter != null){
+        body = new Statement.Body(
+          Arrays.asList(
+            body,
+            new Statement.Expression(new Express.Count(counter, new Express.Variable(initName), initName))));
+      } else {
+        body = new Statement.Body(
           Arrays.asList(
             body,
             new Statement.Expression(new Express.Assign(initName, increment))));
+      }
     }
+
 
     if (condition == null) { condition = new Express.Literal(true); }
     body = new Statement.While(condition, body);
@@ -202,13 +225,31 @@ class Parser {
     return new Statement.Print(value);
   }
 
+
+
+  ////////////
+  // RETURN //
+  ////////////
+
+  private Statement returnStatement() {
+    Token keyword = previous();
+    Express value = null;
+
+    if(!check(LINE_END)){
+      value = expression();
+    }
+
+    consume(LINE_END, "endline '.' expected after return statement.");
+    return new Statement.Return(keyword, value);
+  }
+
   ////////
   // OP //
   ////////
   
   private Statement.Operation operation(String kind) {
     Token name = consume(IDENTIFIER, "expected " + kind + " name.");
-    consume(L_ASSIGN, "',' expected after " + kind + " declaration.");
+    consume(L_ASSIGN, "imperative '<-' expected after " + kind + " declaration.");
     List<Token> params = new ArrayList<>();
 
     if(!check(COLON)) {
@@ -274,8 +315,9 @@ class Parser {
     return statements;
   }
 
+
   private Express assignment() {
-    Express expr = equality();
+    Express expr = count();
 
     if (match(L_ASSIGN)) {
       Token equals = previous();
@@ -288,6 +330,24 @@ class Parser {
 
       error(equals, "Invalid assignment target.");
     }
+    return expr;
+  }
+
+  private Express count() {
+    Express expr = equality();
+
+    if (match(PLUSPLUS)) {
+      Token operator = previous();
+      Token name = ((Express.Variable)expr).name;
+      return new Express.Count(operator, expr, name);
+    }
+
+    if (match(MINUSMINUS)) {
+      Token operator = previous();
+      Token name = ((Express.Variable)expr).name;
+      return new Express.Count(operator, expr, name);
+    }
+
     return expr;
   }
 
@@ -341,7 +401,7 @@ class Parser {
       Express right = unary();
       return new Express.Unary(operator, right);
     }
-    return calling();
+    return scoping();
   }
 
   private Express finishCalling(Express called) {
@@ -358,6 +418,17 @@ class Parser {
    // Token par = consume(COLON, "Closing ':' expected after function parameters");
 
     return new Express.Calling(called, args);
+  }
+
+  private Express scoping() {
+    if(match(GLOBAL)) {
+      consume(LINE_END, "'global' keyword requires '.' decimal indexing. (e.g. 'global.foo')");
+      if (match(IDENTIFIER)) { return new Express.GlobalVariable(previous()); }
+    } else if (match(PARENT)) {
+      consume(LINE_END, "'parent' keyword requires '.' decimal indexing. (e.g. 'parent.foo')");
+      if (match(IDENTIFIER)) { return new Express.ParentVariable(previous()); }
+    }
+    return calling();
   }
 
   private Express calling() {
@@ -386,8 +457,7 @@ class Parser {
       return new Express.Grouping(expr);
     }
 
-
-    throw error(peek(), "Found invalid expression. Expected a valid expression.");
+    throw error(peek(), "Invalid Expression Found. Instructions Died at the End of the Syntax Tree. . RIP.");
   }
 
   private boolean match(TokenType... types) {
