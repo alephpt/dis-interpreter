@@ -58,6 +58,11 @@ public class DisC {
     
     if(hadError) return;
 
+    Resolver resolver = new Resolver(interpreter);
+    resolver.resolve(statements);
+
+    if(hadError) return;
+
     // System.out.println(new PrintAST().print(expression));
     interpreter.interpret(statements);
   }

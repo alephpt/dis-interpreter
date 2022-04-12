@@ -317,7 +317,7 @@ class Parser {
 
 
   private Express assignment() {
-    Express expr = count();
+    Express expr = or();
 
     if (match(L_ASSIGN)) {
       Token equals = previous();
@@ -330,6 +330,30 @@ class Parser {
 
       error(equals, "Invalid assignment target.");
     }
+    return expr;
+  }
+
+  private Express or() {
+    Express expr = and();
+
+    while (match(OR_OP)) {
+      Token operator = previous();
+      Express right = and();
+      expr = new Express.Logical(expr, operator, right);
+    }
+
+    return expr;
+  }
+
+  private Express and() {
+    Express expr = count();
+
+    while (match(AND_OP)) {
+      Token operator = previous();
+      Express right = count();
+      expr = new Express.Logical(expr, operator, right);
+    }
+
     return expr;
   }
 

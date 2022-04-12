@@ -12,6 +12,7 @@ abstract class Express {
     R visitCallingExpress(Calling express);
     R visitGroupingExpress(Grouping express);
     R visitLiteralExpress(Literal express);
+    R visitLogicalExpress(Logical express);
     R visitVariableExpress(Variable express);
     R visitParentVariableExpress(ParentVariable express);
     R visitGlobalVariableExpress(GlobalVariable express);
@@ -134,6 +135,25 @@ abstract class Express {
     }
 
     final Object value;
+  }
+
+
+  // Logical Express Definition //
+  static class Logical extends Express {
+    Logical(Express left, Token operator, Express right) {
+      this.left = left;
+      this.operator = operator;
+      this.right = right;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitLogicalExpress(this);
+    }
+
+    final Express left;
+    final Token operator;
+    final Express right;
   }
 
 

@@ -2,10 +2,13 @@ package dev.alephpt.Dis;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   final Field globals = new Field();
   private Field fields = globals;
+  private final Map<Express, Integer> relatives = new HashMap<>();
 
   Interpreter() {
     globals.define("clock", new DisCaller() {
@@ -47,6 +50,23 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   @Override
   public Object visitLiteralExpress(Express.Literal express) {
     return express.value;
+  }
+
+  @Override
+  public Object visitLogicalExpress(Express.Logical express) {
+    Object left = evaluate(express.left);
+
+    if (express.operator.type == TokenType.OR_OP) {
+      if (isTruthful(left)) {
+        return left;
+      }
+    } else {
+      if (!isTruthful(left)) {
+        return left;
+      }
+    }
+
+    return evaluate(express.right);
   }
 
   @Override
@@ -197,7 +217,7 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
 
   @Override
   public Object visitVariableExpress(Express.Variable express) {
-    return fields.get(express.name);
+    return findVar(express.name, express);
   }
 
   @Override
@@ -208,12 +228,20 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   @Override
   public Object visitGlobalVariableExpress(Express.GlobalVariable express) {
     return fields.globalGet(express.name);
+    // globals.get(express.name);
   }
 
   @Override
   public Object visitAssignExpress(Express.Assign express) {
     Object value = evaluate(express.value);
-    fields.assign(express.name, value);
+    Integer distance = relatives.get(express);
+
+    if (distance != null) {
+      fields.assignAt(distance, express.name, value);
+    } else {
+      globals.assign(express.name, value);
+    }
+
     return value;
   }
 
@@ -320,12 +348,26 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
     return object.toString();
   }
 
+  void resolve(Express express, int depth) {
+    relatives.put(express, depth);
+  }
+
   private Object evaluate(Express express) {
     return express.accept(this);
   }
 
   private void execute(Statement statement) {
     statement.accept(this);
+  }
+
+  private Object findVar(Token name, Express express) {
+    Integer distance = relatives.get(express);
+
+    if(distance != null){
+      return fields.getAt(distance, name.lexeme);
+    } else {
+      return globals.get(name);
+    }
   }
 
   void executeBlock(List<Statement> statements, Field field) {

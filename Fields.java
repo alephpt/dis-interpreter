@@ -30,9 +30,15 @@ class Field {
   }
 
   Object parentGet(Token name) {
-    if (foregone.values.containsKey(name.lexeme)) { return foregone.values.get(name.lexeme); }
-
-    throw new RuntimeError(name, "Parent Variable '" + name.lexeme + "' is undefined.");
+    if (foregone != null) {
+      if (foregone.values.containsKey(name.lexeme)) { 
+        return foregone.values.get(name.lexeme); }
+      else {
+        throw new RuntimeError(name, "Parent Variable '" + name.lexeme + "' is undefined.");
+      }
+    } else {
+        throw new RuntimeError(name, "Parent indexing cannot be used with the global scope.");
+    }
   }
 
   void parentAssign(Token name, Object value) {
@@ -63,8 +69,25 @@ class Field {
     throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
   }
 
+  void assignAt(int distance, Token name, Object value) {
+    ancestor(distance).values.put(name.lexeme, value);
+  }
+
+  Object getAt(int distance, String name) {
+    return ancestor(distance).values.get(name);
+  }
+
   void define(String name, Object value) {
     values.put(name, value);
   }
 
+  Field ancestor(int distance) {
+    Field field = this;
+
+    for (int i = 0; i < distance; i++) {
+      field = field.foregone;
+    }
+
+    return field;
+  }
 }

@@ -37,6 +37,7 @@ public class GenerateAST {
           "Calling        : Express called, List<Express> args",
           "Grouping       : Express expression",
           "Literal        : Object value",
+          "Logical        : Express left, Token operator, Express right",
           "Variable       : Token name",
           "ParentVariable : Token name",
           "GlobalVariable : Token name"
