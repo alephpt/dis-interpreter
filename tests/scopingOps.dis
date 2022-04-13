@@ -1,0 +1,28 @@
+def a <- "GlobalA".
+log -> " - Global Context - ".
+log -> "".
+log -> "Logging A: " + a.
+log -> "".
+|
+  log -> " - First Nesting - ".
+  op nestedA <-:| return a. ~
+  op parentA <-:| return parent.a. ~
+  log -> "".
+  log -> "NestedA expected as Global: " + nestedA->.
+
+  def a <- "ParentA".
+  log -> "NestedA expected as Parent: " + nestedA->.
+  log -> "ParentA expected as Global: " + parentA->.
+  log -> "".
+  |
+    log -> " - Second Nesting - ".
+    log -> "".
+    def a <- "ChildA".
+    log -> "ParentA expected as Parent: " + parentA->.
+    log -> "NestedA expected as Parent: " + nestedA->.
+    log -> "NestedA expected as Parent: " + nestedA->.
+    |
+      log -> "NestedA expected as Child: " + parentA->.
+    ~
+  ~
+~

@@ -1,0 +1,18 @@
+def a <- 0.
+def temp <- 0.
+
+op fibonacci<-:
+|
+  // TODO: as, def b <- 1.(+= temp) < 100000:
+  as,def b <- 1.(temp + b) < 10000 :
+  |
+    log -> a.
+    temp <- a.
+    a <- b.
+  ~
+  log -> a.
+~
+
+op main<-:| fibonacci->. ~
+
+main->.

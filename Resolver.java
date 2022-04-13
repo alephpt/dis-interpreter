@@ -16,7 +16,52 @@ class Resolver implements Express.Visitor<Void>, Statement.Visitor<Void> {
 
   private enum OperationType {
     NONE,
-    OPERATION
+    OPERATION,
+    METHOD
+  }
+
+  @Override
+  public Void visitObjStatement(Statement.Obj object) {
+    declare(object.name);
+
+    for (Statement.Operation method : object.methods) {
+      resolveOperation(method, OperationType.METHOD);
+    }
+
+    return null;
+  }
+
+  @Override
+  public Void visitEnumStatement(Statement.Enum enumstmnt) {
+    declare(enumstmnt.name);
+    define(enumstmnt.name);
+    return null;
+  }
+
+  @Override
+  public Void visitFormStatement(Statement.Form form) {
+    declare(form.name);
+
+    for (Statement.Variable variable : form.members) {
+      declare(variable.name);
+      if (variable.initial != null) { resolve(variable.initial); }
+      define(variable.name);
+    }
+    
+    return null;
+  }
+
+  @Override
+  public Void visitGetPropsExpress(Express.GetProps props) {
+    resolve(props.object);
+    return null;
+  }
+
+  @Override
+  public Void visitSetPropsExpress(Express.SetProps props) {
+    resolve(props.value);
+    resolve(props.object);
+    return null;
   }
 
   @Override

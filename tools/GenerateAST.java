@@ -12,8 +12,7 @@ public class GenerateAST {
       System.exit(64);
     }
     String outputDir = args[0];
-   
-/*   
+     
     defineAST(outputDir, "Statement", Arrays.asList(
           "Expression   : Express expression",
           "Operation    : Token name, List<Token> params, List<Statement> body",
@@ -23,18 +22,21 @@ public class GenerateAST {
           "Print        : Express expression",
           "Return       : Token keyword, Express value",
           "Body         : List<Statement> statements",
+          "Obj          : Token name, List<Statement.Operation> methods",// List<Statement.Variable> members",
+          "Enum         : Token name, List<Express.Variable> elements",
+          "Form         : Token name, List<Statement.Variable> members",
           "Variable     : Token name, Express initial"
           )
     );
     
-
-*/
     defineAST(outputDir, "Express", Arrays.asList(
           "Assign         : Token name, Express value",
           "Count          : Token operator, Express identifier, Token name",
           "Unary          : Token operator, Express right",
           "Binary         : Express left, Token operator, Express right",
           "Calling        : Express called, List<Express> args",
+          "GetProps       : Express object, Token name",
+          "SetProps       : Express object, Token locale, Token name, Express value",
           "Grouping       : Express expression",
           "Literal        : Object value",
           "Logical        : Express left, Token operator, Express right",
@@ -43,7 +45,6 @@ public class GenerateAST {
           "GlobalVariable : Token name"
           )
     );
- //   */
   }
 
   private static void defineAST(String outputDir, String baseName, List<String> types) throws IOException {

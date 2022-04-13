@@ -1,0 +1,6 @@
+op hello <- text:
+|
+  log -> text.
+~
+
+hello -> "Hello, World".

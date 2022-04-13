@@ -38,15 +38,6 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
     }
   }
 
-/*  void interpret(Express expression) {
-    try {
-      Object value = evaluate(expression);
-      System.out.println(asString(value));
-    } catch (RuntimeError error) {
-      DisC.runtimeError(error);
-    }
-  }*/
-
   @Override
   public Object visitLiteralExpress(Express.Literal express) {
     return express.value;
@@ -246,6 +237,27 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   }
 
   @Override
+  public Object visitGetPropsExpress(Express.GetProps props) {
+    Object object = evaluate(props.object);
+    if (object instanceof DisInstance) {
+      return ((DisInstance) object).get(props.name);
+    }
+    if (object instanceof DisSample) {
+      return ((DisSample) object).get(props.name);
+    }
+    if (object instanceof DisTaste) {
+      return ((DisTaste) object).get(props.name);
+    }
+
+    throw new RuntimeError(props.name, "Only instances have properties");
+  }
+
+  @Override
+  public Void visitSetPropsExpress(Express.SetProps props) {
+    return null;
+  }
+
+  @Override
   public Void visitExpressionStatement(Statement.Expression statement) {
     evaluate(statement.expression);
     return null;
@@ -305,6 +317,51 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
     Object value = null;
     if(statement.value != null) { value = evaluate(statement.value); } 
     throw new Return(value);
+  }
+
+  @Override
+  public Void visitObjStatement(Statement.Obj object) {
+    fields.define(object.name.lexeme, null);
+
+    Map<String, DisOp> methods = new HashMap<>();
+    for (Statement.Operation method : object.methods) {
+      DisOp op = new DisOp(method, fields);
+      methods.put(method.name.lexeme, op);
+    }
+
+    DisObj obj = new DisObj(object.name.lexeme, methods);
+    fields.assign(object.name, obj);
+    return null;
+  }
+
+  @Override
+  public Void visitEnumStatement(Statement.Enum enumstmnt) {
+    fields.define(enumstmnt.name.lexeme, null);
+  
+    Map<String, Express.Variable> elements = new HashMap<>();
+    for (Express.Variable element : enumstmnt.elements) {
+      Express.Variable variable = new Express.Variable(element.name);
+      elements.put(element.name.lexeme, variable);
+    }
+
+    DisEnum enums = new DisEnum(enumstmnt.name.lexeme, elements);
+    fields.assign(enumstmnt.name, enums);
+    return null;
+  }
+
+  @Override
+  public Void visitFormStatement(Statement.Form form) {
+    fields.define(form.name.lexeme, null);
+
+    Map<String, Statement.Variable> members = new HashMap<>();
+    for (Statement.Variable member : form.members) {
+      Statement.Variable variable = new Statement.Variable(member.name, member.initial);
+      members.put(member.name.lexeme, variable);
+    }
+
+    DisForm formt = new DisForm(form.name.lexeme, members);
+    fields.assign(form.name, formt);
+    return null;
   }
 
   @Override

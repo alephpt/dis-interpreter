@@ -1,0 +1,19 @@
+op factorial <- n :
+|
+  when, n >= 0.0:
+  |
+    when, n == 0.0: ^ 1.0.
+    else:
+      ^ n * factorial->(n - 1.0).
+  ~
+
+
+~
+
+op main <-:
+|
+  def m <- 101.
+  log -> "Factorial of " + m + ": " + factorial->m.
+~
+
+main->.

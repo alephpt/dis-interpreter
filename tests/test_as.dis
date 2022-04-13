@@ -1,0 +1,62 @@
+// Standard Loop
+
+op standard_loop <- n:
+|
+  as, def i <- 0.(++) < n :
+  |  log -> "Standard Loop: " + i.
+  ~
+~
+
+// Initialized i Outside of the Loop
+op preinit <- n:
+|
+  def i <- 0.
+  as,i.(++) < n: 
+    log -> "Pre-Initialized: " + i.
+~
+
+// Incrimenting i Inside the Loop
+op loopinc <- n:
+|
+  as,def i <- 0.() < n:
+  | 
+    log -> "Non cond inc: " + i. 
+    i++. 
+  ~
+~
+
+// Pre-initialized and Loop based Incriment
+op preinit_loopinc <- n:
+|
+  def i <- 0.
+  as,i.() < n:
+  | 
+    log -> "PreInit + Loop Inc: " + i. 
+    i++. 
+  ~
+~
+
+// infinite loop
+op infinity <- n:
+|
+  as,.():|~
+  log -> n.
+~
+
+
+op main<-:
+|
+  def cycles <- 5.
+  def a <- "Hello 'FOR' Loops".
+  log -> a. 
+
+  standard_loop -> cycles.
+  preinit -> cycles.
+  loopinc -> cycles.
+  preinit_loopinc -> cycles.
+  
+  cycles <- "Infinite Loop".
+  infinity -> cycles.
+~
+
+main->.

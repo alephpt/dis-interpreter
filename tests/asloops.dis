@@ -1,0 +1,63 @@
+def a <- "Hello 'FOR' Loops".
+log -> a. 
+
+
+// STANDARD LOOP //
+    // GOAL //
+  // for, def i <- 0.(++) < 3 :| log -> i. ~
+
+    // CURRENTLY ONLY ACCEPTING
+as, def i <- 0.(++) < 3 :
+|
+  log -> "Standard Loop: " + i.
+~
+
+
+
+// NOT INITIALIZED IN THE LOOP //
+def i <- 0.
+
+    // GOAL:  
+  // as, i.(++) < 3 : log -> i;
+
+    // CURRENTLY ONLY ACCEPTING
+as,i.(++) < 3 : log -> "Pre-Initialized: " + i.
+
+
+
+// NOT INITIALIZED OR INCREMENTED IN THE CONDITIONAL//
+def i <- 0.
+
+    // GOAL
+  // as,i.() < 3:| log -> i. i++. ~
+
+    // CURRENTLY ONLY ACCEPTING
+as,i.() < 3:| 
+  log -> "PreInit + Loop Inc: " + i. 
+  i++.
+~
+
+
+
+// NOT INCRIMENTED IN THE CONDITIONAL //
+    // GOAL
+  // as,def a <- 0.() < 3:
+  // | 
+  //   log -> a. 
+  //   a++/
+  // ~
+
+    // CURRENTLY ONLY ACCEPTING
+as,def a <- 0.() < 3:
+| 
+  log -> "Non cond inc: " + a. 
+  a++. 
+~
+
+
+
+// INFINITE LOOP //
+def a <- "inf".
+as,.():|~
+
+log -> "Infinite loop..".

@@ -1,0 +1,14 @@
+when, true: log -> "this works".
+
+when, true == true: | 
+  log -> "this also works".
+~
+
+when, (none == a) :| log -> "this also should work". ~
+
+when ,(a == none):
+  log -> "but does this work?".
+
+def a.
+when ,true :| a <- "or this?". ~
+log -> a.

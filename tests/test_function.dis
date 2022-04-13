@@ -1,0 +1,22 @@
+op Add<- a, b:| 
+  ^ a + " + " + b + " = " + (a + b). 
+~
+
+op HelloPrinter<-:
+| 
+  def hello_string <- "Hello, Dis.". 
+  log -> hello_string.
+  def user_in <- "userIn doesn't work yet".
+  log -> ("You entered: " + user_in).
+  // ^ 0.
+~
+
+op main<-:
+|
+  HelloPrinter->.
+  log -> Add->7, 8.
+~
+
+def func <- main->.
+
+func.

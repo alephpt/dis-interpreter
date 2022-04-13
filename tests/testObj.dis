@@ -1,0 +1,25 @@
+obj testObj 
+|
+  first <-a:
+  |
+    log -> "Hello, Obj +" + a + " time!".
+  ~
+~
+
+op main<-:
+|
+  def testing <- testObj->.
+  def hello <- testing[first].
+  
+  as, def i <- 1.(++) <= 3:
+  |
+    when, i == 1:
+      testing::first->i.
+    or, i == 2:
+      testing[first]->i.
+    else:
+      hello->i.
+  ~
+~
+
+main->.

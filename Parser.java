@@ -35,6 +35,9 @@ class Parser {
 
   private Statement definition() {
     try {
+      if (match(OBJ)) { return objDefinition(); }
+      if (match(FORM)) { return formDefinition(); }
+      if (match(ENUM)) { return enumDefinition(); }
       if (match(OP)) { return operation("operation"); }
       if (match(DEFINE)) { return varDefinition(); }
       return statement();
@@ -42,6 +45,62 @@ class Parser {
       synchronize();
       return null;
     }
+  }
+
+  private Statement objDefinition() {
+    Token name = consume(IDENTIFIER, "Your object needs a name.");
+    consume(BODY_START, "Object requires body starting with '|' opening bar");
+    List<Statement.Operation> methods = new ArrayList<>();
+
+    while(!check(BODY_END) && !isAtEnd()) {
+      methods.add(operation("method"));
+    }
+
+    consume(BODY_END, "Object requires body ending with '~' closing tilda");
+
+    return new Statement.Obj(name, methods);
+  }
+
+  private Statement formDefinition() {
+    Token name = consume(IDENTIFIER, "Your form needs a name.");
+    consume(BODY_START, "Form requires body starting with '|' opening bar");
+    List<Statement.Variable> members = new ArrayList<>();
+
+    while(!check(BODY_END) && !isAtEnd()) {
+      consume(DEFINE, "Definition keyword 'def' expected when declaring form members.");
+      Token varName = consume(IDENTIFIER, "Variable name expected in form member declaration.");
+      Express initial = null;
+
+      if (match(L_ASSIGN)) {
+        initial = expression(); 
+      }
+
+      consume(LINE_END, "Expected endline value '.' after form member declaration.");
+
+      members.add(new Statement.Variable(varName, initial));
+    }
+
+    consume(BODY_END, "Form requires body ending with '~' closing tilda");
+
+    return new Statement.Form(name, members);
+  }
+
+  private Statement enumDefinition() {
+    Token name = consume(IDENTIFIER, "Your form needs a name.");
+    consume(BODY_START, "Form requires body starting with '|' opening bar");
+    List<Express.Variable> elements = new ArrayList<>();
+
+    while(!check(BODY_END) && !isAtEnd()) {
+      consume(DEFINE, "Definition keyword 'def' expected when declaring enum elements.");
+      Token initName = consume(IDENTIFIER, "Element name expexted in enum element definition.");
+      consume(LINE_END, "Expected endline value '.' after enum element declaration.");
+
+      elements.add(new Express.Variable(initName));
+    }
+
+    consume(BODY_END, "Form requires body ending with '~' closing tilda");
+
+    return new Statement.Enum(name, elements);
   }
 
   private Statement statement() {
@@ -326,6 +385,9 @@ class Parser {
       if (expr instanceof Express.Variable) {
         Token name = ((Express.Variable)expr).name;
         return new Express.Assign(name, value);
+      } else if (expr instanceof Express.GetProps) {
+        Express.GetProps get = (Express.GetProps)expr;
+        return new Express.SetProps(get.object, new Token(PUBLIC, "public", null, 0), get.name, value);
       }
 
       error(equals, "Invalid assignment target.");
@@ -461,6 +523,13 @@ class Parser {
     while (true) {
       if(match(R_ASSIGN)){
         expr = finishCalling(expr);
+      } else if (match(INDEX)) {
+        Token name = consume(IDENTIFIER, "Expected property name after index");
+        expr = new Express.GetProps(expr, name);
+      } else if (match(L_BRACK)) {
+        Token name = consume(IDENTIFIER, "Expected property name after opening bracket");
+        expr = new Express.GetProps(expr, name);
+        consume(R_BRACK, "Expected closing bracket after property name.");
       } else {
         break;
       }
@@ -525,7 +594,7 @@ class Parser {
 
       switch(peek().type) {
         case OP:
-        case WORKER:
+        case OBJ:
         case DEFINE: 
         case LOG: 
         case WHEN:

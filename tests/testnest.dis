@@ -1,0 +1,46 @@
+def a <- "Global A".
+def b <- "Global B".
+def c <- "Global C".
+log -> " - GLOBAL - ".
+log -> "".
+log -> a.
+log -> b.
+log -> c.
+log -> "".
+log -> "".
+|
+  def a <- "Parent A". 
+  b <- "Parent B".
+  log -> " - FIRST NEST - ".
+  log -> "Def Shadow A, Redef Global B -".
+  log -> "".
+  log -> a.
+  log -> b.
+  log -> c.
+  log -> "".
+  log -> "".
+  |
+    a <- "Child A".
+    c <- "Child C".
+    log -> " - SECOND NEST - ".
+    log -> "Redef Shadow A, Redef Global C.".
+    log -> "".
+    log -> a.
+    log -> b.
+    log -> c.
+    log -> "".
+    log -> "".
+  ~
+  log -> " - FIRST NEST - ".
+  log -> "".
+  log -> a.
+  log -> b.
+  log -> c.
+  log -> "".
+  log -> "".
+~
+log -> " - GLOBAL - ".
+log -> "".
+log -> a.
+log -> b.
+log -> c.

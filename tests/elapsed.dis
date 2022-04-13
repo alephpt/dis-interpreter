@@ -1,0 +1,12 @@
+def prevTime <- clock,:.
+def currentTime.
+def elapsed.
+
+while, true: 
+|
+  currentTime <- clock,:.
+  elapsed <- currentTime - prevTime.
+  log -> "Time Elapsed = " + elapsed.
+  prevTime <- currentTime.
+  as, def i <-0. (i <- i + 1) i < 1000:|~
+~

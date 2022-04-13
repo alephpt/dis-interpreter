@@ -10,6 +10,8 @@ abstract class Express {
     R visitUnaryExpress(Unary express);
     R visitBinaryExpress(Binary express);
     R visitCallingExpress(Calling express);
+    R visitGetPropsExpress(GetProps express);
+    R visitSetPropsExpress(SetProps express);
     R visitGroupingExpress(Grouping express);
     R visitLiteralExpress(Literal express);
     R visitLogicalExpress(Logical express);
@@ -105,6 +107,44 @@ abstract class Express {
 
     final Express called;
     final List<Express> args;
+  }
+
+
+  // GetProps Express Definition //
+  static class GetProps extends Express {
+    GetProps(Express object, Token name) {
+      this.object = object;
+      this.name = name;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitGetPropsExpress(this);
+    }
+
+    final Express object;
+    final Token name;
+  }
+
+
+  // SetProps Express Definition //
+  static class SetProps extends Express {
+    SetProps(Express object, Token locale, Token name, Express value) {
+      this.object = object;
+      this.locale = locale;
+      this.name = name;
+      this.value = value;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitSetPropsExpress(this);
+    }
+
+    final Express object;
+    final Token locale;
+    final Token name;
+    final Express value;
   }
 
 

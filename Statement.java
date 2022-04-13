@@ -13,6 +13,9 @@ abstract class Statement {
     R visitPrintStatement(Print statement);
     R visitReturnStatement(Return statement);
     R visitBodyStatement(Body statement);
+    R visitObjStatement(Obj statement);
+    R visitEnumStatement(Enum statement);
+    R visitFormStatement(Form statement);
     R visitVariableStatement(Variable statement);
   }
 
@@ -150,6 +153,57 @@ abstract class Statement {
     }
 
     final List<Statement> statements;
+  }
+
+
+  // Obj Statement Definition //
+  static class Obj extends Statement {
+    Obj(Token name, List<Statement.Operation> methods) {
+      this.name = name;
+      this.methods = methods;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitObjStatement(this);
+    }
+
+    final Token name;
+    final List<Statement.Operation> methods;
+  }
+
+
+  // Enum Statement Definition //
+  static class Enum extends Statement {
+    Enum(Token name, List<Express.Variable> elements) {
+      this.name = name;
+      this.elements = elements;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitEnumStatement(this);
+    }
+
+    final Token name;
+    final List<Express.Variable> elements;
+  }
+
+
+  // Form Statement Definition //
+  static class Form extends Statement {
+    Form(Token name, List<Statement.Variable> members) {
+      this.name = name;
+      this.members = members;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitFormStatement(this);
+    }
+
+    final Token name;
+    final List<Statement.Variable> members;
   }
 
 

@@ -27,7 +27,12 @@ class Scanner {
     literals.put("define",    DEFINE);
     literals.put("op",        OP);
     literals.put("operation", OP);
-    literals.put("worker",    WORKER);
+    literals.put("object",    OBJ);
+    literals.put("obj",       OBJ);
+    literals.put("enum",      ENUM);
+    literals.put("form",      FORM);
+    literals.put("public",    PUBLIC);
+    literals.put("private",   PRIVATE);
     literals.put("none",      NONE);
     literals.put("include",   INCLUDE);
     literals.put("true",      TRUE);
@@ -84,7 +89,9 @@ class Scanner {
                          match('=') ? PLUS_EQ :
                                       PLUS); 
                 break;
-      case ':': addToken(COLON); break;
+      case ':': addToken(match(':') ? INDEX :
+                                      COLON); 
+                break;
       case ';': addToken(SEMIC); break;
       case '/': if (match('*')) {
                   blockComment();

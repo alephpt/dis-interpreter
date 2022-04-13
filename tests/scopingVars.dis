@@ -1,0 +1,38 @@
+def a <- "globalA".
+
+log -> " - GLOBAL PARENT - ".
+log -> "Local A: " + a.
+log -> "".
+|
+  def a <- "outterA".
+
+  log -> " - OUTTER PARENT - ".
+  log -> "Local A: " + a.
+  log -> "Parent A: " + parent.a.
+  log -> "Global A: " + global.a.
+  log -> "".
+  |
+    def a <- "innerA".
+
+    log -> " - INNER PARENT - ".
+    log -> "Local A: " + a.
+    log -> "Parent A: " + parent.a.
+    log -> "Global A: " + global.a.
+    log -> "".
+    |
+      log -> " - INNERMOST CHILD - ".
+      def a <- "childA".
+      log -> "Child A: " + a.
+      log -> "Parent A: " + parent.a.
+      log -> "Global A: " + global.a.
+      a <- parent.a.
+      log -> "Redefining Local as Parent: " + a.
+      a <- global.a.
+      log -> "Redefining Local as Global: " + a.
+    ~
+//      these are not meant to work
+//      parent.a <- a.
+//      global.a <- a.
+  ~
+~
+

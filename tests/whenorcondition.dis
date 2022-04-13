@@ -1,0 +1,26 @@
+def a <- 3.
+
+when, a == none: log -> "a is none in the first loop.".
+or, a == 1: log -> "a == 1 in the second loop.".
+or, (a == 2):| log -> "a == 2 in the third loop". ~
+else: log -> "a is equal to something else".
+
+
+
+def something.
+
+when, something:
+|
+  when, something == "hello" :
+  | log -> something.
+  ~
+  or, something == "goodbye" :
+  | log -> something.
+  ~
+  or, something == "nothing" :
+  | log -> something.
+  ~
+  else:
+    log -> "something didn't match".
+~
+else: log -> something.

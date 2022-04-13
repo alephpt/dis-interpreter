@@ -1,0 +1,14 @@
+op test_function<-:| 
+  log->"Does this work?". 
+~
+
+// call an anonymous function passed as a variable
+op anon_function<-a:| a->. ~
+
+anon_function->test_function.
+
+
+// call the variable as a function
+def func_val <- test_function.
+
+func_val->.
