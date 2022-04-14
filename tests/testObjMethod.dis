@@ -1,0 +1,22 @@
+obj testObj 
+{
+  op logA <-:
+  |
+    log -> "Hello".
+  ~
+}
+
+def a <- testObj->[logA].
+def b <- testObj->.
+
+log -> "inline instance".
+testObj->::logA->.
+
+log -> "".
+log -> "a = " + a.
+a->.
+
+log -> "".
+log -> "b = " + b.
+b::logA->.
+b[logA]->.

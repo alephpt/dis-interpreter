@@ -240,21 +240,41 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   public Object visitGetPropsExpress(Express.GetProps props) {
     Object object = evaluate(props.object);
     if (object instanceof DisInstance) {
-      return ((DisInstance) object).get(props.name);
+      return ((DisInstance)object).get(props.name);
     }
     if (object instanceof DisSample) {
-      return ((DisSample) object).get(props.name);
+      return ((DisSample)object).get(props.name);
     }
     if (object instanceof DisTaste) {
-      return ((DisTaste) object).get(props.name);
+      return ((DisTaste)object).get(props.name);
     }
 
-    throw new RuntimeError(props.name, "Only instances have properties");
+    throw new RuntimeError(props.name, "Property '" + props.name + "' unavailable. Make sure you are using a proper instance.");
   }
 
   @Override
-  public Void visitSetPropsExpress(Express.SetProps props) {
-    return null;
+  public Object visitSetPropsExpress(Express.SetProps props) {
+    Object object = evaluate(props.object);
+    
+    if (!(object instanceof DisInstance) &&
+        !(object instanceof DisSample) &&
+        !(object instanceof DisTaste)) {
+      throw new RuntimeError(props.name, "Only instances of Object, Enumeration, or Forms contain indexable fields");
+    }
+
+    Object value = evaluate(props.value);
+
+    if (object instanceof DisInstance) {
+      ((DisInstance)object).set(props.name, value);
+    }
+    if (object instanceof DisSample) {
+      ((DisSample)object).set(props.name, value);
+    }
+    if (object instanceof DisTaste) {
+      ((DisTaste)object).set(props.name, value);
+    }
+
+    return value;
   }
 
   @Override

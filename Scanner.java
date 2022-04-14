@@ -37,10 +37,10 @@ class Scanner {
     literals.put("include",   INCLUDE);
     literals.put("true",      TRUE);
     literals.put("false",     FALSE);
-    literals.put("this",      THIS);
+    literals.put("self",      SELF);
     literals.put("parent",    PARENT);
     literals.put("global",    GLOBAL);
-    literals.put("super",     SUPER);
+    literals.put("pilot",     PILOT);
     literals.put("return",    RETURN);
   }
 

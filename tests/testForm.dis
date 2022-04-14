@@ -1,0 +1,7 @@
+form testForm 
+{ 
+  def a <- "hello". 
+}
+
+def formTest <- testForm->.
+log -> formTest::a.

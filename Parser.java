@@ -22,15 +22,6 @@ class Parser {
     return statements;
   }
 
-/*  Express parse() {
-    try {
-      return expression();
-    } catch (ParserError error) {
-      return null;
-    }
-  }
-  */
-
   private Express expression() { return assignment(); }
 
   private Statement definition() {
@@ -49,48 +40,47 @@ class Parser {
 
   private Statement objDefinition() {
     Token name = consume(IDENTIFIER, "Your object needs a name.");
-    consume(BODY_START, "Object requires body starting with '|' opening bar");
+    consume(L_BRACE, "Object body requires starting with '{' opening brace.");
     List<Statement.Operation> methods = new ArrayList<>();
 
-    while(!check(BODY_END) && !isAtEnd()) {
-      methods.add(operation("method"));
+    while(!check(R_BRACE) && !isAtEnd()) {
+      if(match(OP)) {
+        methods.add(operation("method"));
+      }
     }
 
-    consume(BODY_END, "Object requires body ending with '~' closing tilda");
+    consume(R_BRACE, "Object body requires ending with '}' closing brace.");
 
     return new Statement.Obj(name, methods);
   }
 
   private Statement formDefinition() {
     Token name = consume(IDENTIFIER, "Your form needs a name.");
-    consume(BODY_START, "Form requires body starting with '|' opening bar");
+    consume(L_BRACE, "Form body requires starting with '{' opening brace.");
     List<Statement.Variable> members = new ArrayList<>();
 
-    while(!check(BODY_END) && !isAtEnd()) {
-      consume(DEFINE, "Definition keyword 'def' expected when declaring form members.");
-      Token varName = consume(IDENTIFIER, "Variable name expected in form member declaration.");
+    while(!check(R_BRACE) && !isAtEnd()) {
+      consume(DEFINE, "Member name must be defined. Try using 'def " + peek() + "'?");
+      Token varname = consume(IDENTIFIER, "Member name expected in form '" + name.lexeme + "'.");
+
       Express initial = null;
+      if (match(L_ASSIGN)) { initial = expression(); }
 
-      if (match(L_ASSIGN)) {
-        initial = expression(); 
-      }
-
-      consume(LINE_END, "Expected endline value '.' after form member declaration.");
-
-      members.add(new Statement.Variable(varName, initial));
+      consume(LINE_END, "Expected endline value '.' after declaration.");
+      members.add(new Statement.Variable(varname, initial));
     }
 
-    consume(BODY_END, "Form requires body ending with '~' closing tilda");
+    consume(R_BRACE, "Form body requires ending with '}' closing brace.");
 
     return new Statement.Form(name, members);
   }
 
   private Statement enumDefinition() {
     Token name = consume(IDENTIFIER, "Your form needs a name.");
-    consume(BODY_START, "Form requires body starting with '|' opening bar");
+    consume(L_BRACE, "Form body requires starting with '{' opening brace.");
     List<Express.Variable> elements = new ArrayList<>();
 
-    while(!check(BODY_END) && !isAtEnd()) {
+    while(!check(R_BRACE) && !isAtEnd()) {
       consume(DEFINE, "Definition keyword 'def' expected when declaring enum elements.");
       Token initName = consume(IDENTIFIER, "Element name expexted in enum element definition.");
       consume(LINE_END, "Expected endline value '.' after enum element declaration.");
@@ -98,7 +88,7 @@ class Parser {
       elements.add(new Express.Variable(initName));
     }
 
-    consume(BODY_END, "Form requires body ending with '~' closing tilda");
+    consume(R_BRACE, "Form body requires ending with '}' closing brace.");
 
     return new Statement.Enum(name, elements);
   }
@@ -277,9 +267,9 @@ class Parser {
   /////////
   
   private Statement printStatement() {
-    consume(R_ASSIGN, "Directional '->' Token expected after LOG declaration.");
+    consume(R_ASSIGN, "Directional Executive Token '->' expected after Log Statement.");
     Express value = expression();
-    consume(LINE_END, "Expected endline value '.' after statement.");
+    consume(LINE_END, "Expected endline value '.' after log statement.");
 
     return new Statement.Print(value);
   }
@@ -308,7 +298,7 @@ class Parser {
   
   private Statement.Operation operation(String kind) {
     Token name = consume(IDENTIFIER, "expected " + kind + " name.");
-    consume(L_ASSIGN, "imperative '<-' expected after " + kind + " declaration.");
+    consume(L_ASSIGN, "Imperative Left Assignment operator '<-' expected after " + kind + " declaration.");
     List<Token> params = new ArrayList<>();
 
     if(!check(COLON)) {
@@ -336,7 +326,7 @@ class Parser {
     Express initial = null;
     if (match(L_ASSIGN)) { initial = expression(); }
 
-    consume(LINE_END, "Expected endline value '.' after declaration.");
+    consume(LINE_END, "Expected endline value '.' after variable declaration.");
     return new Statement.Variable(name, initial);
   }
 
@@ -490,22 +480,6 @@ class Parser {
     return scoping();
   }
 
-  private Express finishCalling(Express called) {
-    List<Express> args = new ArrayList<>();
-    
-    if (!check(LINE_END)) {
-      do {
-        if (args.size() >= 255) { error(peek(), "Maximum of 255 Arguments Exceeded."); }
-
-        args.add(expression());
-      } while (match(COMMA));
-    }
-
-   // Token par = consume(COLON, "Closing ':' expected after function parameters");
-
-    return new Express.Calling(called, args);
-  }
-
   private Express scoping() {
     if(match(GLOBAL)) {
       consume(LINE_END, "'global' keyword requires '.' decimal indexing. (e.g. 'global.foo')");
@@ -523,10 +497,12 @@ class Parser {
     while (true) {
       if(match(R_ASSIGN)){
         expr = finishCalling(expr);
-      } else if (match(INDEX)) {
+      } else
+      if (match(INDEX)) {
         Token name = consume(IDENTIFIER, "Expected property name after index");
         expr = new Express.GetProps(expr, name);
-      } else if (match(L_BRACK)) {
+      } else
+      if (match(L_BRACK)) {
         Token name = consume(IDENTIFIER, "Expected property name after opening bracket");
         expr = new Express.GetProps(expr, name);
         consume(R_BRACK, "Expected closing bracket after property name.");
@@ -534,8 +510,23 @@ class Parser {
         break;
       }
     }
-
+    
     return expr;
+  }
+
+  private Express finishCalling(Express called) {
+    List<Express> args = new ArrayList<>();
+    
+    if (!check(LINE_END) && !check(L_BRACK) && !check(INDEX)) {
+      do {
+        if (args.size() >= 255) { error(peek(), "Maximum of 255 Arguments Exceeded."); }
+        args.add(expression());
+      } while (match(COMMA));
+    }  
+    
+    // consume(LINE_END, "Calling '" + called + "' requires End Line '.' value.");
+
+    return new Express.Calling(called, args);
   }
 
   private Express primary() {
@@ -550,7 +541,7 @@ class Parser {
       return new Express.Grouping(expr);
     }
 
-    throw error(peek(), "Invalid Expression Found. Instructions Died at the End of the Syntax Tree. . RIP.");
+    throw error(previous(), "Invalid Expression Found. Something is missing.\n\t Instructions Died at the End of Execution . . RIP.");
   }
 
   private boolean match(TokenType... types) {
@@ -603,7 +594,6 @@ class Parser {
         case AS:
         case WHILE:
         case RETURN:
-        case LINE_END:
           return;
       }
 
