@@ -349,7 +349,7 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
     fields.define(object.name.lexeme, null);
 
     Map<String, DisOp> methods = new HashMap<>();
-    for (Statement.Operation method : object.methods) {
+    for (Statement.Operation method : object.body) {
       DisOp op = new DisOp(method, fields, method.name.lexeme.equals("init"));
       methods.put(method.name.lexeme, op);
     }

@@ -37,9 +37,14 @@ class Resolver implements Express.Visitor<Void>, Statement.Visitor<Void> {
 
     beginScope();
     scopes.peek().put("this", true);
+    
+    for (int i = 0; i < object.body.size(); i++) {
 
-    for (Statement.Operation method : object.methods) {
-      resolveOperation(method, OperationType.METHOD);
+      if (object.body.get(i) instanceof Statement.Operation) {
+        resolveOperation(((Statement.Operation)object.body.get(i)), OperationType.METHOD);
+      } else if (object.body.get(i) instanceof Statement.Variable) {
+        resolve(((Statement.Variable)object.body.get(i)).initial);
+      }
     }
 
     endScope();
