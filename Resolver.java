@@ -9,6 +9,7 @@ class Resolver implements Express.Visitor<Void>, Statement.Visitor<Void> {
   private final Interpreter interpreter;
   private final Stack<Map<String, Boolean>> scopes = new Stack<>();
   private OperationType currentOperation = OperationType.NONE;
+  private ObjectType currentObject = ObjectType.NONE;
 
   Resolver(Interpreter interpreter) {
     this.interpreter = interpreter;
@@ -20,14 +21,29 @@ class Resolver implements Express.Visitor<Void>, Statement.Visitor<Void> {
     METHOD
   }
 
+  private enum ObjectType {
+    NONE,
+    OBJECT, 
+  }
+
+
   @Override
   public Void visitObjStatement(Statement.Obj object) {
+    ObjectType enclosingObject = currentObject;
+    currentObject = ObjectType.OBJECT;
+
     declare(object.name);
+    define(object.name);
+
+    beginScope();
+    scopes.peek().put("this", true);
 
     for (Statement.Operation method : object.methods) {
       resolveOperation(method, OperationType.METHOD);
     }
 
+    endScope();
+    currentObject = enclosingObject;
     return null;
   }
 
@@ -48,19 +64,6 @@ class Resolver implements Express.Visitor<Void>, Statement.Visitor<Void> {
       define(variable.name);
     }
     
-    return null;
-  }
-
-  @Override
-  public Void visitGetPropsExpress(Express.GetProps props) {
-    resolve(props.object);
-    return null;
-  }
-
-  @Override
-  public Void visitSetPropsExpress(Express.SetProps props) {
-    resolve(props.value);
-    resolve(props.object);
     return null;
   }
 
@@ -140,6 +143,16 @@ class Resolver implements Express.Visitor<Void>, Statement.Visitor<Void> {
   }
 
   @Override
+  public Void visitSelfExpress(Express.Self self) {
+    if (currentObject == ObjectType.NONE) {
+      DisC.error(self.keyword, "Self Reference cannot be done outside of Objects.");
+    }
+
+    resolveLocal(self, self.keyword);
+    return null;
+  }
+
+  @Override
   public Void visitVariableExpress(Express.Variable variable) {
     if(!scopes.isEmpty() && scopes.peek().get(variable.name.lexeme) == Boolean.FALSE) {
       DisC.error(variable.name, "Needs to return 'none'"); 
@@ -158,6 +171,19 @@ class Resolver implements Express.Visitor<Void>, Statement.Visitor<Void> {
   @Override
   public Void visitParentVariableExpress(Express.ParentVariable parental) {
     resolveParent(parental, parental.name);
+    return null;
+  }
+  
+  @Override
+  public Void visitGetPropsExpress(Express.GetProps props) {
+    resolve(props.object);
+    return null;
+  }
+
+  @Override
+  public Void visitSetPropsExpress(Express.SetProps props) {
+    resolve(props.value);
+    resolve(props.object);
     return null;
   }
 

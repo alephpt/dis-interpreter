@@ -1,7 +1,10 @@
 form testForm 
 { 
-  def a <- "hello". 
+  def a <- "hello".
+  def b <- "why hello".
 }
 
 def formTest <- testForm->.
-log -> formTest::a.
+
+log -> testForm->[a].
+log -> formTest::b.

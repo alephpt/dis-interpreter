@@ -11,6 +11,12 @@ class DisOp implements DisCaller {
     this.declaration = declaration;
   }
 
+  DisOp bind(DisInstance objIns) {
+    Field field = new Field(closure);
+    field.define("this", objIns);
+    return new DisOp(declaration, field);
+  }
+
   @Override
   public Object call(Interpreter interpreter, List<Object> args) {
     Field fields = new Field(closure);

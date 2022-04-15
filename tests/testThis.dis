@@ -1,0 +1,14 @@
+obj testObj 
+{
+  op a <-:
+  |
+    ^ this.
+  ~
+
+  op b <-:
+  |
+    log -> "Hello, nested this ref.".
+  ~
+}
+
+testObj->[a]->[b]->.

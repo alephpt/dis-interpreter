@@ -35,6 +35,7 @@ public class GenerateAST {
           "Unary          : Token operator, Express right",
           "Binary         : Express left, Token operator, Express right",
           "Calling        : Express called, List<Express> args",
+          "Self           : Token keyword",
           "GetProps       : Express object, Token name",
           "SetProps       : Express object, Token locale, Token name, Express value",
           "Grouping       : Express expression",

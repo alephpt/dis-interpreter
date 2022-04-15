@@ -5,14 +5,14 @@ import java.util.Map;
 
 class DisForm implements DisCaller{
   final String name;
-  private final Map<String, Statement.Variable> members;
+  private final Map<String, Object> members;
 
-  DisForm(String name, Map<String, Statement.Variable> members) {
+  DisForm(String name, Map<String, Object> members) {
     this.name = name;
     this.members = members;
   }
 
-  Statement.Variable findMember(String name) {
+  Object findMember(String name) {
     if (members.containsKey(name)) {
       return members.get(name);
     }

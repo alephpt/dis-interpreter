@@ -16,7 +16,7 @@ class DisTaste {
       return fields.get(name.lexeme);
     }
 
-    Statement.Variable member = form.findMember(name.lexeme);
+    Object member = form.findMember(name.lexeme);
     if (member != null) {
       return member;
     }

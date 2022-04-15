@@ -5,18 +5,26 @@ import java.util.Map;
 
 class DisEnum implements DisCaller{
   final String name;
-  private final Map<String, Express.Variable> elements;
+  private final Map<String, Integer> elements; // need to turn this into an array
 
-  DisEnum(String name, Map<String, Express.Variable> elements) {
+  DisEnum(String name, Map<String, Integer> elements) {
     this.name = name;
     this.elements = elements;
   }
 
-  Express.Variable findElement(String name) {
+  Integer findElement(String name) {
     if (elements.containsKey(name)) {
       return elements.get(name);
     }
+    return null;
+  }
 
+  String findElementName(Integer el) {
+    for(Map.Entry<String, Integer> element : elements.entrySet()) {
+      if(element.getValue() == el) {
+        return element.getKey();
+      }
+    }
     return null;
   }
 

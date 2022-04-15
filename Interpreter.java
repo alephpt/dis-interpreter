@@ -278,6 +278,11 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   }
 
   @Override
+  public Object visitSelfExpress(Express.Self self) {
+    return findVar(self.keyword, self);
+  }
+
+  @Override
   public Void visitExpressionStatement(Statement.Expression statement) {
     evaluate(statement.expression);
     return null;
@@ -357,11 +362,12 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   @Override
   public Void visitEnumStatement(Statement.Enum enumstmnt) {
     fields.define(enumstmnt.name.lexeme, null);
-  
-    Map<String, Express.Variable> elements = new HashMap<>();
+    Integer i = 0;
+
+    Map<String, Integer> elements = new HashMap<>();
     for (Express.Variable element : enumstmnt.elements) {
-      Express.Variable variable = new Express.Variable(element.name);
-      elements.put(element.name.lexeme, variable);
+      elements.put(element.name.lexeme, i);
+      i++;
     }
 
     DisEnum enums = new DisEnum(enumstmnt.name.lexeme, elements);
@@ -373,10 +379,10 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
   public Void visitFormStatement(Statement.Form form) {
     fields.define(form.name.lexeme, null);
 
-    Map<String, Statement.Variable> members = new HashMap<>();
+    Map<String, Object> members = new HashMap<>();
     for (Statement.Variable member : form.members) {
-      Statement.Variable variable = new Statement.Variable(member.name, member.initial);
-      members.put(member.name.lexeme, variable);
+      Object value = evaluate(member.initial);
+      members.put(member.name.lexeme, value);
     }
 
     DisForm formt = new DisForm(form.name.lexeme, members);

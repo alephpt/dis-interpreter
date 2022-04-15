@@ -16,7 +16,14 @@ class DisSample {
       return fields.get(name.lexeme);
     }
 
-    Express.Variable element = enumd.findElement(name.lexeme);
+    if (name.literal instanceof Integer) {
+      String elementName = enumd.findElementName((Integer)name.literal);
+      if (elementName != null) {
+        return elementName;
+      }
+    }
+
+    Integer element = enumd.findElement(name.lexeme);
     if (element != null) {
       return element;
     }

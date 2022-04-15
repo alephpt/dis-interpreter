@@ -10,6 +10,7 @@ abstract class Express {
     R visitUnaryExpress(Unary express);
     R visitBinaryExpress(Binary express);
     R visitCallingExpress(Calling express);
+    R visitSelfExpress(Self express);
     R visitGetPropsExpress(GetProps express);
     R visitSetPropsExpress(SetProps express);
     R visitGroupingExpress(Grouping express);
@@ -107,6 +108,21 @@ abstract class Express {
 
     final Express called;
     final List<Express> args;
+  }
+
+
+  // Self Express Definition //
+  static class Self extends Express {
+    Self(Token keyword) {
+      this.keyword = keyword;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitSelfExpress(this);
+    }
+
+    final Token keyword;
   }
 
 

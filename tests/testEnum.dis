@@ -1,0 +1,11 @@
+enum testEnum {
+  a.
+  b.
+  c.
+  d.
+}
+
+log -> testEnum->[a].
+log -> testEnum->[c].
+// log -> testEnum->[0]. need to implement Arrays
+// log -> testEnum->[2].

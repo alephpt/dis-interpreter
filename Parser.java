@@ -81,7 +81,6 @@ class Parser {
     List<Express.Variable> elements = new ArrayList<>();
 
     while(!check(R_BRACE) && !isAtEnd()) {
-      consume(DEFINE, "Definition keyword 'def' expected when declaring enum elements.");
       Token initName = consume(IDENTIFIER, "Element name expexted in enum element definition.");
       consume(LINE_END, "Expected endline value '.' after enum element declaration.");
 
@@ -535,6 +534,7 @@ class Parser {
     if (match(NONE)) { return new Express.Literal(null); }
     if (match(NUMERAL, STRING)) { return new Express.Literal(previous().literal); }
     if (match(IDENTIFIER)) { return new Express.Variable(previous()); }
+    if (match(SELF)) { return new Express.Self(previous()); }
     if (match(L_PAR)) {
       Express expr = expression();
       consume(R_PAR, "Expecting ')' after expression");
