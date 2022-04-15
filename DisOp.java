@@ -5,8 +5,10 @@ import java.util.List;
 class DisOp implements DisCaller {
   private final Statement.Operation declaration;
   private final Field closure;
+  private final boolean isPilot;
 
-  DisOp(Statement.Operation declaration, Field closure) {
+  DisOp(Statement.Operation declaration, Field closure, boolean isPilot) {
+    this.isPilot = isPilot;
     this.closure = closure;
     this.declaration = declaration;
   }
@@ -14,7 +16,7 @@ class DisOp implements DisCaller {
   DisOp bind(DisInstance objIns) {
     Field field = new Field(closure);
     field.define("this", objIns);
-    return new DisOp(declaration, field);
+    return new DisOp(declaration, field, isPilot);
   }
 
   @Override
@@ -29,6 +31,9 @@ class DisOp implements DisCaller {
     } catch (Return returnValue) {
       return returnValue.value;
     }
+
+    if (isPilot) return closure.getAt(0, "this");
+
     return null;
   }
 

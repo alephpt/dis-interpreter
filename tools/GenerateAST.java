@@ -22,7 +22,7 @@ public class GenerateAST {
           "Print        : Express expression",
           "Return       : Token keyword, Express value",
           "Body         : List<Statement> statements",
-          "Obj          : Token name, List<Statement.Operation> methods",// List<Statement.Variable> members",
+          "Obj          : Token name, List<Statement> body",// List<Statement.Variable> members",
           "Enum         : Token name, List<Express.Variable> elements",
           "Form         : Token name, List<Statement.Variable> members",
           "Variable     : Token name, Express initial"

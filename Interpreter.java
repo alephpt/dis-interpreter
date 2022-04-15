@@ -290,7 +290,7 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
 
   @Override 
   public Void visitOperationStatement(Statement.Operation statement) {
-    DisOp operation = new DisOp(statement, fields);
+    DisOp operation = new DisOp(statement, fields, false);
     fields.define(statement.name.lexeme, operation);
 
     return null;
@@ -350,7 +350,7 @@ class Interpreter implements Express.Visitor<Object>, Statement.Visitor<Void> {
 
     Map<String, DisOp> methods = new HashMap<>();
     for (Statement.Operation method : object.methods) {
-      DisOp op = new DisOp(method, fields);
+      DisOp op = new DisOp(method, fields, method.name.lexeme.equals("init"));
       methods.put(method.name.lexeme, op);
     }
 

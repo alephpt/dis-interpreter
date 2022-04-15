@@ -158,9 +158,9 @@ abstract class Statement {
 
   // Obj Statement Definition //
   static class Obj extends Statement {
-    Obj(Token name, List<Statement.Operation> methods) {
+    Obj(Token name, List<Statement> body) {
       this.name = name;
-      this.methods = methods;
+      this.body = body;
     }
 
     @Override
@@ -169,7 +169,7 @@ abstract class Statement {
     }
 
     final Token name;
-    final List<Statement.Operation> methods;
+    final List<Statement> body;
   }
 
 

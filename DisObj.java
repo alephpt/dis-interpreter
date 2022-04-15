@@ -23,12 +23,20 @@ class DisObj implements DisCaller{
   @Override
   public Object call(Interpreter interpreter, List<Object> arguments) {
     DisInstance instance = new DisInstance(this);
+    DisOp initializer = findMethod("pilot");
+
+    if(initializer != null) {
+      initializer.bind(instance).call(interpreter, arguments);
+    }
+
     return instance;
   }
 
   @Override
   public int arity() {
-    return 0;
+    DisOp initializer = findMethod("pilot");
+    if (initializer == null) { return 0; }
+    return initializer.arity();
   }
 
   @Override

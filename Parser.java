@@ -41,17 +41,22 @@ class Parser {
   private Statement objDefinition() {
     Token name = consume(IDENTIFIER, "Your object needs a name.");
     consume(L_BRACE, "Object body requires starting with '{' opening brace.");
-    List<Statement.Operation> methods = new ArrayList<>();
+    List<Statement> body = new ArrayList<>();
 
     while(!check(R_BRACE) && !isAtEnd()) {
-      if(match(OP)) {
-        methods.add(operation("method"));
+      if(match(OP) || check(PILOT)) {
+        body.add(operation("method"));
+      } else if (match(DEFINE)) {
+        body.add(varDefinition());
+      }
+      else {
+        throw error(previous(), "The Body of an Object can only contain Operations, Definitions and an Initializer.");
       }
     }
 
     consume(R_BRACE, "Object body requires ending with '}' closing brace.");
 
-    return new Statement.Obj(name, methods);
+    return new Statement.Obj(name, body);
   }
 
   private Statement formDefinition() {
@@ -541,7 +546,7 @@ class Parser {
       return new Express.Grouping(expr);
     }
 
-    throw error(previous(), "Invalid Expression Found. Something is missing.\n\t Instructions Died at the End of Execution . . RIP.");
+    throw error(previous(), peek() + "Invalid Expression Found. Something is missing.\n\t Instructions Died at the End of Execution . . RIP.");
   }
 
   private boolean match(TokenType... types) {
